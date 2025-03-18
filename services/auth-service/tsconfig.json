@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ES6",
+    "module": "CommonJS",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "experimentalDecorators": true,  // 데코레이터 사용 허용
+    "strictPropertyInitialization": false,  // 클래스 속성 초기화 체크 비활성화
+    "skipLibCheck": true  // 타입 검사에서 라이브러리 제외
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules"]
+}
