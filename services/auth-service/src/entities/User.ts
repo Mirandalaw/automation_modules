@@ -1,18 +1,16 @@
-import { Entity, PrimaryGeneratedColumn, Column, BaseEntity } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
-@Entity('users')
-export default class User extends BaseEntity {
+@Entity("users")
+export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ unique: true })
+  @Column({ type: 'varchar', length: 255, unique: true })
   username: string;
 
-  @Column({ unique: true })
+  @Column({ type: 'varchar', length: 255, unique: true })
   email: string;
 
-  @Column()
-  password: string;  // 암호화된 비밀번호를 저장
-
-  // 필요한 경우, 다른 필드 (예: createdAt, updatedAt) 등을 추가
+  @Column({ type: 'varchar', length: 255 })
+  password: string;
 }

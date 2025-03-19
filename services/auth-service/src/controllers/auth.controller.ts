@@ -1,49 +1,51 @@
 import { Request, Response } from 'express';
-import { getRepository } from 'typeorm';
-import bcrypt from 'bcrypt';
-import User from '../entities/User' ;
+import { registerUser, loginUser } from '../services/auth.service';
+import resHandler from '../utils/resHandler';
+import { SuccessResponse, ErrorResponse } from '../types/responseTypes';
+import { CustomError } from '../utils/CustomError';
 
-// 회원가입 (비밀번호 암호화)
+// 회원가입
 export const register = async (req: Request, res: Response) => {
   const { username, email, password } = req.body;
 
-  const userRepository = getRepository(User);
-
-  // 비밀번호 암호화
-  const hashedPassword = await bcrypt.hash(password, 10);
-
-  const newUser = userRepository.create({
-    username,
-    email,
-    password: hashedPassword,
-  });
-
   try {
-    await userRepository.save(newUser);
-    return res.status(201).json({ message: 'User registered successfully' });
-  } catch (error) {
-    return res.status(500).json({ message: 'Server error' });
+    const result: SuccessResponse | ErrorResponse = await registerUser(username, email, password);
+    return resHandler(res, 201, result.message);
+  } catch (error: unknown) {
+    // CustomError 인스턴스를 체크하여 에러 처리
+    if (error instanceof CustomError) {
+      return resHandler(res, error.statusCode, error.message);
+    }
+
+    // 에러가 CustomError가 아닌 경우에는 일반적인 에러 처리
+    if (error instanceof Error) {
+      return resHandler(res, 500, 'Server error', error.message);
+    }
+
+    // 만약 error가 Error 객체가 아니면, 안전하게 처리할 수 없는 경우
+    return resHandler(res, 500, 'Server error', 'Unknown error occurred');
   }
 };
 
-// 로그인 (비밀번호 확인)
+// 로그인
 export const login = async (req: Request, res: Response) => {
   const { username, password } = req.body;
 
-  const userRepository = getRepository(User);
+  try {
+    const result: SuccessResponse | ErrorResponse = await loginUser(username, password);
+    return resHandler(res, 200, result.message);
+  } catch (error: unknown) {
+    // CustomError 인스턴스를 체크하여 에러 처리
+    if (error instanceof CustomError) {
+      return resHandler(res, error.statusCode, error.message);
+    }
 
-  const user = await userRepository.findOne({ where: { username } });
+    // 에러가 CustomError가 아닌 경우에는 일반적인 에러 처리
+    if (error instanceof Error) {
+      return resHandler(res, 500, 'Server error', error.message);
+    }
 
-  if (!user) {
-    return res.status(404).json({ message: 'User not found' });
+    // 만약 error가 Error 객체가 아니면, 안전하게 처리할 수 없는 경우
+    return resHandler(res, 500, 'Server error', 'Unknown error occurred');
   }
-
-  // 비밀번호 확인
-  const isMatch = await bcrypt.compare(password, user.password);
-
-  if (!isMatch) {
-    return res.status(401).json({ message: 'Invalid credentials' });
-  }
-
-  return res.status(200).json({ message: 'Login successful' });
 };
