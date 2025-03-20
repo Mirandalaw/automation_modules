@@ -1,13 +1,9 @@
-import { createConnection } from 'typeorm';
-import dotenv from 'dotenv';
-
-dotenv.config();
+import { AppDataSource } from '../configs/data-source';
 
 export const connectDatabase = async () => {
-  try {
-    await createConnection();
-    console.log('Connected to PostgreSQL database');
-  } catch (error) {
-    console.error('Database connection error', error);
-  }
+  AppDataSource.initialize()
+    .then(() => {
+      console.log('Database connected successfully!');
+    })
+    .catch((error) => console.log('Database connection error:', error));
 };
