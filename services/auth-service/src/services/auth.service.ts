@@ -1,12 +1,12 @@
 import { User } from '../entities/User';
-import { getRepository } from 'typeorm';
+import { AppDataSource } from "../configs/data-source";
 import bcrypt from 'bcrypt';
 import { CustomError } from '../utils/CustomError';
 import { SuccessResponse, ErrorResponse } from '../types/responseTypes';
 import generateUUID from '../utils/uuid';
 
 export const registerUser = async (username: string, email: string, password: string): Promise<SuccessResponse | ErrorResponse> => {
-  const userRepository = getRepository(User);
+  const userRepository = AppDataSource.getRepository(User);
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -26,7 +26,7 @@ export const registerUser = async (username: string, email: string, password: st
 };
 
 export const loginUser = async (username: string, password: string): Promise<SuccessResponse | ErrorResponse> => {
-  const userRepository = getRepository(User);
+  const userRepository = AppDataSource.getRepository(User);
 
   const user = await userRepository.findOne({ where: { username } });
 
