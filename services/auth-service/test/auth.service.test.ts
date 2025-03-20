@@ -1,29 +1,31 @@
 import { registerUser, loginUser } from '../src/services/auth.service';
 import { CustomError } from '../src/utils/CustomError';
-import { getRepository } from 'typeorm';
+import { AppDataSource } from '../src/configs/data-source';
 import bcrypt from 'bcrypt';
-import {User} from '../src/entities/User';
-
-// mock getRepository and bcrypt
-jest.mock('typeorm');
-jest.mock('bcrypt');
+import { User } from '../src/entities/User';
 
 describe('AuthService', () => {
-  const mockSave = jest.fn();
-  const mockFindOne = jest.fn();
+  let mockSave: jest.Mock;
+  let mockFindOne: jest.Mock;
 
   beforeEach(() => {
-    // Mock getRepository and bcrypt methods
-    (getRepository as jest.Mock).mockReturnValue({
+    mockSave = jest.fn();
+    mockFindOne = jest.fn();
+
+    // 최신 Jest 문법 사용하여 AppDataSource.getRepository() Mocking
+    jest.spyOn(AppDataSource, 'getRepository').mockReturnValue({
       save: mockSave,
       findOne: mockFindOne,
-    });
-    (bcrypt.hash as jest.Mock).mockResolvedValue('hashedPassword');
-    (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+      create: jest.fn().mockImplementation((user) => user), // create()도 Mocking
+    } as any);
+
+    // bcrypt 모듈의 특정 메서드만 Mocking
+    jest.spyOn(bcrypt, 'hash').mockResolvedValue('hashedPassword' as never);
+    jest.spyOn(bcrypt, 'compare').mockResolvedValue(true as never);
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    jest.restoreAllMocks(); // 모든 spyOn mock을 원래대로 복구
   });
 
   it('should register a user successfully', async () => {
@@ -59,7 +61,7 @@ describe('AuthService', () => {
 
   it('should throw an error if credentials are invalid during login', async () => {
     mockFindOne.mockResolvedValueOnce({ username: 'john', password: 'hashedPassword' });
-    (bcrypt.compare as jest.Mock).mockResolvedValueOnce(false); // Simulating invalid password
+    jest.spyOn(bcrypt, 'compare').mockResolvedValueOnce(false as never); // Simulating invalid password
 
     await expect(loginUser('john', 'wrongPassword')).rejects.toThrowError(CustomError);
   });
