@@ -17,8 +17,7 @@ export const AppDataSource: DataSource = new DataSource({
   username: process.env.DB_USER,
   password: process.env.DB_PASSWORD || "",
   database: process.env.DB_NAME,
-  synchronize: true,
-  // synchronize: process.env.NODE_ENV !== "production", // 개발 환경에서만 true
+  synchronize: true, // synchronize: process.env.NODE_ENV !== "production", // 개발 환경에서만 true
   logging: process.env.NODE_ENV === "development",
   entities: [__dirname + "/../entities/**/*.{ts,js}"], // 여러 엔티티를 포함
   migrations: [__dirname + "/../migration/**/*.{ts,js}"],

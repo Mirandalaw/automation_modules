@@ -1,13 +1,10 @@
-# docker-compose.yml
-
 services:
   auth-service:
     build:
-      context: ./ # auth-service 디렉토리로 컨텍스트 설정
-      dockerfile: Dockerfile
+      context: .
     container_name: auth-service
     env_file:
-      - .env
+      - .env  # ✅ 루트 .env 사용
     environment:
       DB_HOST: ${DB_HOST}
       DB_PORT: ${DB_PORT}
@@ -15,14 +12,15 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       DB_NAME: ${DB_NAME}
       SERVICE_PORT: ${SERVICE_PORT}
-    depends_on:
-      - db
     ports:
       - "${SERVICE_PORT}:${SERVICE_PORT}"
-    volumes:
-      - ./services/auth-service:/app
     working_dir: /app
     command: npm run start
+    volumes:
+      - /app/node_modules  # ✅ 호스트 node_modules 덮어쓰기 방지
+    depends_on:
+      - redis
+      - db
 
   db:
     image: postgres:13
@@ -37,7 +35,10 @@ services:
       - "5433:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
-
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
 volumes:
   pgdata:
-    driver: local

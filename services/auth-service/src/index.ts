@@ -1,12 +1,14 @@
 import express from 'express';
+import dotenv from 'dotenv';
+dotenv.config();
+
 import { authRoutes } from './routes/authRoutes';
 import { connectDatabase } from './db/db';
 import errorHandler from './middleware/errorHandler';
-import dotenv from 'dotenv';
 import { logger } from './middleware/logger';
 import { globalLimiter } from './middleware/rateLimit';
+import './utils/redis';
 
-dotenv.config();
 
 const app = express();
 

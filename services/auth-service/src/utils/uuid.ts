@@ -18,4 +18,4 @@ const generateUUID = (): string => {
   return toStringUUID[0] + toStringUUID[2] + toStringUUID[1] + toStringUUID[3];
 };
 
-export default generateUUID();
+export default generateUUID;

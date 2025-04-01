@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import { CustomError } from '../utils/CustomError';
 
@@ -9,21 +9,25 @@ export const authenticate = (req: Request, res: Response, next: NextFunction) =>
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    throw new CustomError(401, 'Authorization header missing or invalid' );
+    throw new CustomError(401, 'Authorization header missing or invalid');
   }
 
   const token = authHeader.split(' ')[1];
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET!);
-    // 사용자 정보 헤더에 추가 (Gateway나 서비스에서 활용)
-    req.headers['x-user-id'] = (decoded as any).userId;
-    req.headers['x-role'] = (decoded as any).role;
+    const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET!) as JwtPayload;
+
+    req.headers['x-user-id'] = decoded.userId as string;
+    req.headers['x-role'] = decoded.roles as string;
+
     next();
-  } catch (err: any) {
-    throw new CustomError(
-      401,
-      err.name === 'TokenExpiredError' ? 'Access token expired' : 'Invalid access token',
-    );
+  } catch (err: unknown) {
+    if (err instanceof jwt.TokenExpiredError) {
+      throw new CustomError(401, 'Access token expired');
+    }
+    if (err instanceof jwt.JsonWebTokenError) {
+      throw new CustomError(401, 'Invalid access token');
+    }
+    throw new CustomError(500, 'Unexpected error during authentication');
   }
 };

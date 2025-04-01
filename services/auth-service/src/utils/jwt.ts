@@ -1,28 +1,40 @@
-import jwt from 'jsonwebtoken';
+import jwt, { SignOptions, Secret, JwtPayload } from 'jsonwebtoken';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-const accessSecret = process.env.JWT_ACCESS_SECRET;
-const refreshSecret = process.env.JWT_REFRESH_SECRET;
+const accessSecret = process.env.JWT_ACCESS_SECRET as Secret;
+const refreshSecret = process.env.JWT_REFRESH_SECRET as Secret;
 
-export const generateAccessToken = (uuid : string) => {
-  return jwt.sign({ uuid }, accessSecret, {
-    expiresIn: process.env.ACCESS_TOKEN_EXPIRY || '15m',
-  });
-};
-export const generateRefreshToken = (uuid : string) => {
-  return jwt.sign({ uuid }, refreshSecret, {
-    expiresIn: process.env.REFRESH_TOKEN_EXPIRY || '7d',
-  });
+if (!accessSecret || !refreshSecret) {
+  throw new Error('JWT secrets are not defined in environment variables.');
+}
+
+const accessTokenOptions: jwt.SignOptions = {
+  expiresIn: parseInt(process.env.ACCESS_TOKEN_EXPIRY || '900', 10), // 15분
 };
 
-export const verifyAccessToken = (token: string) =>{
- return jwt.verify(token, accessSecret);
-}
-export  const verifyRefreshToken = (token: string) =>{
-  return jwt.verify(token, refreshSecret);
-}
+const refreshTokenOptions: jwt.SignOptions = {
+  expiresIn: parseInt(process.env.REFRESH_TOKEN_EXPIRY || '604800', 10), // 7일
+};
+
+
+
+export const generateAccessToken = (uuid: string): string => {
+  return jwt.sign({ uuid }, accessSecret, accessTokenOptions);
+};
+
+export const generateRefreshToken = (uuid: string): string => {
+  return jwt.sign({ uuid }, refreshSecret, refreshTokenOptions);
+};
+
+export const verifyAccessToken = (token: string): JwtPayload => {
+  return jwt.verify(token, accessSecret) as JwtPayload;
+};
+
+export const verifyRefreshToken = (token: string): JwtPayload => {
+  return jwt.verify(token, refreshSecret) as JwtPayload;
+};
 
 export const decodeJwtPayload = (token: string): any => {
   try {
