@@ -17,9 +17,15 @@ export const AppDataSource: DataSource = new DataSource({
   username: process.env.DB_USER,
   password: process.env.DB_PASSWORD || "",
   database: process.env.DB_NAME,
-  synchronize: true, // synchronize: process.env.NODE_ENV !== "production", // 개발 환경에서만 true
+  synchronize: true,
   logging: process.env.NODE_ENV === "development",
-  entities: [__dirname + "/../entities/**/*.{ts,js}"], // 여러 엔티티를 포함
+  entities: [__dirname + "/../entities/**/*.{ts,js}"],
   migrations: [__dirname + "/../migration/**/*.{ts,js}"],
   subscribers: [],
+  extra: {
+    max: Number(process.env.DB_POOL_MAX) || 10,
+    idleTimeoutMillis: Number(process.env.DB_POOL_IDLE_TIMEOUT) || 30000,
+    connectionTimeoutMillis: Number(process.env.DB_POOL_CONNECTION_TIMEOUT) || 2000,
+  },
+
 });
