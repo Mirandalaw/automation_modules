@@ -1,13 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
+import logger from '../utils/logger';
 
-export const logger = (req: Request, res: Response, next: NextFunction) => {
+export const loggerMiddleware = (req: Request, res: Response, next: NextFunction): void => {
   const method = req.method;
   const path = req.originalUrl;
   const userId = req.headers['x-user-id'] || 'Guest';
   const role = req.headers['x-role'] || 'none';
   const ip = req.ip;
 
-  console.log(`[${new Date().toISOString()}] ${ip} ${method} ${path} | user: ${userId} (${role})`);
-
+  logger.info(`${ip} ${method} ${path} | user: ${userId} (${role})`);
   next();
 };

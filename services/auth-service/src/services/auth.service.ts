@@ -12,12 +12,14 @@ import redis from '../utils/redis';
 import { sendEmail } from '../utils/sendEmail';
 import { RegisterUserDto } from '../dto/RegisterUserDto';
 import { LoginDto } from '../dto/LoginDto';
+import logger from '../utils/logger';
 
 export const registerUser = async ({ name, email, password, phone }: RegisterUserDto) => {
   const userRepository = AppDataSource.getRepository(User);
 
   const existing = await userRepository.findOne({ where: { email } });
   if (existing) {
+    logger.warn(`[RegisterUser] 중복 이메일 시도: ${email}`);
     throw new CustomError(409, '이미 존재하는 이메일입니다.');
   }
 
@@ -34,8 +36,10 @@ export const registerUser = async ({ name, email, password, phone }: RegisterUse
 
   try {
     await userRepository.save(newUser);
+    logger.info(`[RegisterUser] 성공: ${email}`);
     return { success: true, message: '회원가입 성공' };
   } catch (err: any) {
+    logger.error(`[RegisterUser] 실패: ${email} | ${err.message}`);
     if (err?.code === '23505') {
       throw new CustomError(409, '이미 사용 중인 값이 존재합니다.', err.detail);
     }
@@ -51,10 +55,16 @@ export const loginUser = async ({ email, password }: LoginDto): Promise<SuccessR
   const refreshTokenRepo = AppDataSource.getRepository(RefreshToken);
 
   const user = await userRepository.findOne({ where: { email } });
-  if (!user) throw new CustomError(404, 'User not found');
+  if (!user) {
+    logger.warn(`[LoginUser] 유저 없음: ${email}`);
+    throw new CustomError(404, 'User not found');
+  }
 
   const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) throw new CustomError(401, 'Invalid password');
+  if (!isMatch) {
+    logger.warn(`[LoginUser] 비밀번호 불일치: ${email}`);
+    throw new CustomError(401, 'Invalid password');
+  }
 
   const accessToken = generateAccessToken(user.uuid);
   const refreshToken = generateRefreshToken(user.uuid);
@@ -67,6 +77,7 @@ export const loginUser = async ({ email, password }: LoginDto): Promise<SuccessR
     expiresAt,
   });
 
+  logger.info(`[LoginUser] 로그인 성공: ${email}`);
   return {
     success: true,
     message: 'Login successful',
@@ -82,6 +93,7 @@ export const reissueToken = async (userId: string, clientRefreshToken: string) =
   const refreshTokenRepo = AppDataSource.getRepository(RefreshToken);
 
   if (!storedToken || storedToken !== clientRefreshToken) {
+    logger.warn(`[ReissueToken] 토큰 불일치 또는 만료: userId=${userId}`);
     throw new CustomError(403, 'Invalid or expired refresh token');
   }
 
@@ -95,6 +107,7 @@ export const reissueToken = async (userId: string, clientRefreshToken: string) =
     expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
   });
 
+  logger.info(`[ReissueToken] 재발급 성공: userId=${userId}`);
   return {
     accessToken: newAccessToken,
     refreshToken: newRefreshToken,
@@ -110,6 +123,7 @@ export const logoutUser = async (clientRefreshToken: string): Promise<SuccessRes
   });
 
   if (!existingToken) {
+    logger.warn('[LogoutUser] 존재하지 않는 토큰');
     throw new CustomError(404, 'Refresh token not found.');
   }
 
@@ -118,6 +132,7 @@ export const logoutUser = async (clientRefreshToken: string): Promise<SuccessRes
   await deleteRefreshToken(userUUID);
   await refreshTokenRepo.delete({ token: clientRefreshToken });
 
+  logger.info(`[LogoutUser] 로그아웃 완료: userId=${userUUID}`);
   return {
     success: true,
     message: 'Successfully logged out',

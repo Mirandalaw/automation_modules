@@ -5,7 +5,7 @@ dotenv.config();
 import { authRoutes } from './routes/authRoutes';
 import { connectDatabase } from './db/db';
 import errorHandler from './middleware/errorHandler';
-import { logger } from './middleware/logger';
+import { loggerMiddleware } from './middleware/loggerMiddleware';
 import { globalLimiter } from './middleware/rateLimit';
 import './utils/redis';
 
@@ -15,7 +15,7 @@ const app = express();
 // TypeORM 연결
 connectDatabase();
 
-app.use(logger);
+app.use(loggerMiddleware);
 app.use(globalLimiter);
 app.use(express.json());
 app.use('/auth', authRoutes);
