@@ -1,5 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
+import cookieParser from 'cookie-parser';
 dotenv.config();
 
 import { authRoutes } from './routes/authRoutes';
@@ -15,9 +16,10 @@ const app = express();
 // TypeORM 연결
 connectDatabase();
 
+app.use(express.json());
+app.use(cookieParser());
 app.use(loggerMiddleware);
 app.use(globalLimiter);
-app.use(express.json());
 app.use('/auth', authRoutes);
 
 app.use(errorHandler);

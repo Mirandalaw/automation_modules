@@ -14,6 +14,9 @@ import { RegisterUserDto } from '../dto/RegisterUserDto';
 import { LoginDto } from '../dto/LoginDto';
 import logger from '../utils/logger';
 
+
+// ✅ 사용자 회원가입
+// 중복 이메일 검사 → 패스워드 암호화 → 사용자 등록
 export const registerUser = async ({ name, email, password, phone }: RegisterUserDto) => {
   const userRepository = AppDataSource.getRepository(User);
 
@@ -50,6 +53,9 @@ export const registerUser = async ({ name, email, password, phone }: RegisterUse
   }
 };
 
+
+// ✅ 사용자 로그인
+// 이메일과 비밀번호 검증 → Access/Refresh Token 발급
 export const loginUser = async ({ email, password }: LoginDto): Promise<SuccessResponse | ErrorResponse> => {
   const userRepository = AppDataSource.getRepository(User);
   const refreshTokenRepo = AppDataSource.getRepository(RefreshToken);
@@ -68,13 +74,13 @@ export const loginUser = async ({ email, password }: LoginDto): Promise<SuccessR
 
   const accessToken = generateAccessToken(user.uuid);
   const refreshToken = generateRefreshToken(user.uuid);
-  const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7);
+  const expiredAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7); // 7일
 
   await saveRefreshToken(user.uuid, refreshToken);
   await refreshTokenRepo.save({
     token: refreshToken,
     user: { uuid: user.uuid },
-    expiresAt,
+    expiredAt,
   });
 
   logger.info(`[LoginUser] 로그인 성공: ${email}`);
@@ -88,6 +94,9 @@ export const loginUser = async ({ email, password }: LoginDto): Promise<SuccessR
   };
 };
 
+
+// ✅ AccessToken/RefreshToken 재발급
+// Redis와 DB의 RefreshToken을 검증 후 새 토큰 발급
 export const reissueToken = async (userId: string, clientRefreshToken: string) => {
   const storedToken = await getRefreshToken(userId);
   const refreshTokenRepo = AppDataSource.getRepository(RefreshToken);
@@ -114,6 +123,9 @@ export const reissueToken = async (userId: string, clientRefreshToken: string) =
   };
 };
 
+
+// ✅ 로그아웃
+// RefreshToken 삭제 (Redis + DB)
 export const logoutUser = async (clientRefreshToken: string): Promise<SuccessResponse | ErrorResponse> => {
   const refreshTokenRepo = AppDataSource.getRepository(RefreshToken);
 
@@ -139,45 +151,90 @@ export const logoutUser = async (clientRefreshToken: string): Promise<SuccessRes
   };
 };
 
-// export const findEmailUser = async (name: string, phone: string) => {
-//   const userRepo = AppDataSource.getRepository(User);
-//   const user = await userRepo.findOne({ where: { name, phone } });
-//
-//   if (!user) throw new CustomError(404, 'No matching user found');
-//
-//   // 마스킹된 이메일 반환 (보안용)
-//   const maskedEmail = user.email.replace(/(.{2}).+(@.+)/, '$1****$2');
-//   return { email: maskedEmail };
-// };
-//
-// export const sendResetCodeForUser = async (email: string) => {
-//   const userRepo = AppDataSource.getRepository(User);
-//   const user = await userRepo.findOne({ where: { email } });
-//
-//   if (!user) throw new CustomError(404, 'Email not found');
-//
-//   const code = Math.floor(100000 + Math.random() * 900000).toString(); // 6자리
-//   await redis.set(`reset:${email}`, code, 'EX', 300); // 5분
-//
-//   await sendEmail(email, '비밀번호 재설정 인증코드', `인증코드: ${code}`);
-//
-//   return { message: '인증코드를 이메일로 전송했습니다' };
-// };
-//
-// export const resetPasswordUser = async (email: string, code: string, newPassword: string) => {
-//   const storedCode = await redis.get(`reset:${email}`);
-//   if (!storedCode || storedCode !== code) {
-//     throw new CustomError(400, 'Invalid or expired code');
-//   }
-//
-//   const userRepo = AppDataSource.getRepository(User);
-//   const user = await userRepo.findOne({ where: { email } });
-//   if (!user) throw new CustomError(404, 'User not found');
-//
-//   user.password = await bcrypt.hash(newPassword, 10);
-//   await userRepo.save(user);
-//
-//   await redis.del(`reset:${email}`);
-//
-//   return { message: '비밀번호가 성공적으로 변경되었습니다' };
-// };
+
+// ✅ 이메일(아이디) 찾기
+// 이름 + 전화번호로 사용자 조회 후 마스킹된 이메일 반환
+export const findEmailUser = async (name: string, phone: string) => {
+  const userRepo = AppDataSource.getRepository(User);
+  const user = await userRepo.findOne({ where: { name, phone } });
+
+  if (!user) {
+    logger.warn(`[FindEmailUser] 사용자 없음: name=${name}, phone=${phone}`);
+    throw new CustomError(404, 'No matching user found');
+  }
+
+  const maskedEmail = user.email.replace(/(.{2}).+(@.+)/, '$1****$2');
+  logger.info(`[FindEmailUser] 이메일 찾기 성공: name=${name}, phone=${phone}, maskedEmail=${maskedEmail}`);
+
+  return { email: maskedEmail };
+};
+
+
+// ✅ 비밀번호 재설정 인증 코드 전송
+// 사용자 이메일 존재 여부 확인 후 6자리 코드 전송 (Redis에 저장)
+export const sendResetCodeForUser = async (email: string) => {
+  const userRepo = AppDataSource.getRepository(User);
+  const user = await userRepo.findOne({ where: { email } });
+
+  if (!user) {
+    logger.warn(`[SendResetCode] 존재하지 않는 이메일: ${email}`);
+    throw new CustomError(404, 'Email not found');
+  }
+
+  const code = Math.floor(100000 + Math.random() * 900000).toString(); // 6자리
+  await redis.set(`reset:${email}`, code, 'EX', 300); // 5분 유효
+
+  await sendEmail(email, '비밀번호 재설정 인증코드', `인증코드: ${code}`);
+  logger.info(`[SendResetCode] 인증 코드 전송 완료: ${email}`);
+
+  return { message: '인증코드를 이메일로 전송했습니다' };
+};
+
+
+// ✅ 인증 코드 검증
+// Redis에 저장된 코드와 클라이언트 코드 비교
+export const verifyResetCodeForUser = async (email: string, code: string) => {
+  const savedCode = await redis.get(`reset:${email}`);
+
+  if (!savedCode) {
+    logger.warn(`[VerifyResetCode] 인증 코드 없음 또는 만료됨: ${email}`);
+    throw new CustomError(400, '인증 코드가 만료되었거나 존재하지 않습니다');
+  }
+
+  if (savedCode !== code) {
+    logger.warn(`[VerifyResetCode] 인증 코드 불일치: ${email}`);
+    throw new CustomError(400, '인증 코드가 일치하지 않습니다');
+  }
+
+  await redis.set(`reset:verified:${email}`, 'true', 'EX', 600); // 인증 성공 상태 저장
+  logger.info(`[VerifyResetCode] 인증 코드 확인 성공: ${email}`);
+
+  return { message: '인증이 완료되었습니다' };
+};
+
+
+// ✅ 비밀번호 재설정
+// 인증된 사용자 비밀번호를 새로 암호화하여 저장
+export const resetPasswordUser = async (email: string, code: string, newPassword: string) => {
+  const storedCode = await redis.get(`reset:${email}`);
+  if (!storedCode || storedCode !== code) {
+    logger.warn(`[ResetPassword] 인증 코드 불일치 또는 없음: ${email}`);
+    throw new CustomError(400, 'Invalid or expired code');
+  }
+
+  const userRepo = AppDataSource.getRepository(User);
+  const user = await userRepo.findOne({ where: { email } });
+  if (!user) {
+    logger.warn(`[ResetPassword] 사용자 없음: ${email}`);
+    throw new CustomError(404, 'User not found');
+  }
+
+  user.password = await bcrypt.hash(newPassword, 10);
+  await userRepo.save(user);
+
+  await redis.del(`reset:${email}`);
+  await redis.del(`reset:verified:${email}`);
+
+  logger.info(`[ResetPassword] 비밀번호 재설정 성공: ${email}`);
+  return { message: '비밀번호가 성공적으로 변경되었습니다' };
+};
