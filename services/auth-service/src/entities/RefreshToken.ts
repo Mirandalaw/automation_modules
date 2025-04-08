@@ -1,25 +1,36 @@
-import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, CreateDateColumn, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { User } from './User';
 
 @Entity()
-export class RefreshToken{
-  @PrimaryGeneratedColumn()
-  id: number;
+export class RefreshToken {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
-  @Column()
+  @Column({ unique: true })
   token: string;
 
-  @ManyToOne(()=>User,(user)=>user.refreshtokens)
-  @JoinColumn({name : 'userUUID',referencedColumnName : 'uuid'})
-  user:User;
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  user: User;
 
   @Column()
-  userUUID : string;
+  userAgent: string;
 
-  @CreateDateColumn()
-  createdAt:Date;
+  @Column()
+  ip: string;
 
-  @Column({type: 'timestamp'})
+  @Column({ type: 'timestamp' })
   expiredAt: Date;
 
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

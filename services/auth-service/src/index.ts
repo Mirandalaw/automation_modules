@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 dotenv.config();
 
-import { authRoutes } from './routes/authRoutes';
+import { authRoutes } from './routes/auth.routes';
 import { connectDatabase } from './db/db';
 import errorHandler from './middleware/errorHandler';
 import { loggerMiddleware } from './middleware/loggerMiddleware';
@@ -21,6 +21,7 @@ app.use(cookieParser());
 app.use(loggerMiddleware);
 app.use(globalLimiter);
 app.use('/auth', authRoutes);
+// app.use('/')
 
 app.use(errorHandler);
 

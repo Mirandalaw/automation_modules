@@ -2,39 +2,63 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
+  CreateDateColumn,
+  UpdateDateColumn,
   OneToMany,
-  ManyToMany,
   JoinTable,
+  ManyToMany,
 } from 'typeorm';
-import BaseEntity from './Entitiy';
+import { PasswordHistory } from './PasswordHistory';
+import { UserSocialAccount } from './UserSocialAccount';
 import { RefreshToken } from './RefreshToken';
 import { Role } from './Role';
 
-@Entity()
-export class User extends BaseEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
 
-  @Column({ type: 'varchar', unique: true })
+@Entity()
+export class User {
+  @PrimaryGeneratedColumn('uuid')
   uuid: string;
 
-  @Column({ type: 'varchar', length: 255 })
+  @Column()
   name: string;
 
-  @Column({ type: 'varchar', length: 255, unique: true })
+  @Column({ unique: true })
   email: string;
 
-  @Column({ type: 'varchar', length: 255 })
-  password: string;
+  @Column({ nullable: true })
+  password?: string;
 
-  @Column({ type: 'varchar', length: 20, unique: true, nullable: true })
+  @Column({ nullable: true })
   phone?: string;
 
-  // ✅ 관계 필드는 기본적으로 optional이며, nullable 처리도 자동
-  @ManyToMany(() => Role, (role) => role.users)
-  @JoinTable()
-  roles?: Role[];
+  // @ManyToMany(() => Role, (role) => role.users, { cascade: true })
+  // @JoinTable() // 소유 측 (User → Role)
+  // roles: Role[];
 
-  @OneToMany(() => RefreshToken, (token) => token.user)
-  refreshtokens?: RefreshToken[];
+  @OneToMany(() => RefreshToken, (token) => token.user, { cascade: true })
+  refreshTokens?: RefreshToken[];
+
+  // ✅ 비밀번호 변경 이력 (1:N)
+  @OneToMany(() => PasswordHistory, (history) => history.user, { cascade: true })
+  passwordHistories: PasswordHistory[];
+
+  // ✅ 연결된 소셜 계정 목록 (1:N)
+  @OneToMany(() => UserSocialAccount, (account) => account.user, { cascade: true })
+  socialAccounts: UserSocialAccount[];
+
+  // ✅ 개인정보 수집 동의 여부 및 날짜
+  @Column({ default: false })
+  agreedToPrivacyPolicy: boolean;
+
+  @Column({ type: 'timestamp', nullable: true })
+  privacyAgreementDate?: Date;
+
+  @Column({ type: 'timestamp', nullable: true })
+  privacyAgreementExpireAt?: Date;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

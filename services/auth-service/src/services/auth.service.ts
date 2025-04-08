@@ -66,6 +66,11 @@ export const loginUser = async ({ email, password }: LoginDto): Promise<SuccessR
     throw new CustomError(404, 'User not found');
   }
 
+  if(!user.password) {
+    logger.warn(`[LoginUser] 비밀번호 없음 (소셜 로그인 전용 계정) : ${email}`);
+    throw  new CustomError(400, '비밀번호 로그인 불가한 계정입니다.');
+  }
+
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) {
     logger.warn(`[LoginUser] 비밀번호 불일치: ${email}`);

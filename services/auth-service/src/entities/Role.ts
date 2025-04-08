@@ -1,5 +1,11 @@
-// entity/Role.ts
-import { Entity, PrimaryGeneratedColumn, Column, ManyToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { User } from './User';
 
 @Entity()
@@ -8,8 +14,14 @@ export class Role {
   id: number;
 
   @Column({ unique: true })
-  name: string;
+  name: string; // 예: 'USER', 'ADMIN', 'MANAGER'
 
-  @ManyToMany(() => User, (user) => user.roles)
-  users: User[];
+  // @ManyToMany(() => User, (user) => user.roles)
+  // users: User[];
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }
