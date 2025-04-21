@@ -1,93 +1,177 @@
-# 🛡️ Auth Service
+🔐 Auth Service (Authentication & Authorization Microservice)
 
-사용자 인증 및 권한 관리를 담당하는 마이크로서비스입니다. 회원가입, 로그인, 토큰 재발급, 로그아웃 등의 기능을 제공합니다.
+인증과 인가를 책임지는 마이크로서비스입니다. JWT 기반 인증, Refresh Token 재발급, 소셜 로그인, 비밀번호 재설정 등 사용자 인증 전반을 담당합니다.
 
----
+본 프로젝트는 MSA 기반 구조로 설계되었으며, 하위 서비스로 auth-service, user-service, 그리고 이를 연결하는 api-gateway를 포함하고 있습니다.
 
-## 📁 프로젝트 구조 (주요 폴더)
+🧩 전체 서비스 구성 (MSA 기반)
 
-```
-auth-service/
-├── controllers/        # 요청 핸들링 (Express route handler)
-├── services/           # 비즈니스 로직
-├── utils/              # 헬퍼 함수, 로깅, 에러 처리 등
-├── entities/           # TypeORM 엔티티 (User, RefreshToken)
-├── dto/                # 요청 DTO 정의
-├── configs/            # DB, Redis 설정 등
-└── middleware/         # 요청 로깅 미들웨어 등
-```
+automation_modules/
+├── services/
+│   ├── auth-service/     # 인증/인가 관련 로직
+│   ├── user-service/     # 유저 정보, 마이페이지 등 유저 도메인 분리
+├── gateway/              # API Gateway: 서비스별 라우팅, 인증 미들웨어 관리
+├── docker-compose.yml    # 전체 서비스 통합 구동
 
----
+🛠 기술 스택
 
-## 🚀 주요 기능
+언어: TypeScript
 
-### ✅ 회원가입
-- 이메일 중복 검사
-- 비밀번호 해싱 (bcrypt)
-- UUID 발급
+서버: Express.js
 
-### ✅ 로그인
-- 이메일/비밀번호 검증
-- JWT AccessToken & RefreshToken 발급
-- Redis 및 DB에 RefreshToken 저장
+ORM: TypeORM (v0.3.x)
 
-### ✅ 토큰 재발급
-- Redis에 저장된 토큰과 클라이언트 토큰 비교
-- 새 AccessToken & RefreshToken 발급
+DB: PostgreSQL
 
-### ✅ 로그아웃
-- Redis & DB에서 RefreshToken 제거
-- 클라이언트 쿠키 제거
+캐시: Redis (ioredis)
 
----
+인증: JWT, OAuth2 (Google)
 
-## 🔐 보안 및 인증
-- JWT (access/refresh) 사용
-- refreshToken은 httpOnly 쿠키로 전달
-- Redis TTL로 refreshToken 자동 만료
-- 모든 예외는 CustomError로 처리
+보안: bcrypt, Rate Limiting, RefreshToken에 userAgent/ip 기록
 
----
+메일: Nodemailer (SendGrid 전환 예정)
 
-## 📦 의존 기술 스택
+배포: Docker, Docker Compose
 
-- **Node.js** / **Express**
-- **TypeScript**
-- **TypeORM** / PostgreSQL
-- **Redis (ioredis)**
-- **JWT** for auth
-- **Winston** for logging
+아키텍처: MSA (Microservices Architecture)
 
----
+✅ 구현된 기능
 
-## 🧪 테스트 및 디버깅
-- 모든 예외는 `handleControllerError`로 처리
-- 응답은 `resHandler`로 통일된 포맷 반환
-- 요청/에러/Redis 처리 결과는 Winston logger로 기록됨
+서비스
 
----
+기능
 
-## 🛠️ 개발 중 유의사항
+설명
 
-- `.env` 파일에서 환경 변수 관리 (`REDIS_HOST`, `PORT`, 등)
-- 로직 변경 시 response/log 포맷 통일 유지하기
-- DTO 및 타입 정의를 통해 안전한 요청 처리 유지
+auth-service
 
----
+회원가입 / 로그인
 
-## 📄 향후 추가 예정 기능
+bcrypt로 비밀번호 암호화, 중복 이메일 검사
 
-- 이메일 찾기 / 비밀번호 재설정
-- 이메일 인증 기반 회원가입 절차
-- 관리자 권한 분리 및 Role 기반 접근 제어
+auth-service
 
----
+JWT 인증
 
-## 📬 Contact
+Access / Refresh Token 분리 및 재발급
 
-문제나 제안사항이 있다면 언제든지 PR 또는 Issue를 등록해주세요.
+auth-service
 
----
+이메일 인증 코드 전송
 
-> 이 서비스는 MSA 아키텍처 기반에서 인증 모듈로 사용됩니다.
+Redis에 저장 후 5분 유효
+
+auth-service
+
+비밀번호 재설정
+
+인증코드 검증 후 비밀번호 재설정
+
+auth-service
+
+아이디(이메일) 찾기
+
+이름+전화번호로 이메일 마스킹 반환
+
+auth-service
+
+소셜 로그인 (Google)
+
+최초 로그인 시 자동 가입, 이후 자동 로그인
+
+auth-service
+
+RefreshToken 관리
+
+Redis + DB 동시 저장, userAgent 및 IP 기록
+
+user-service
+
+마이페이지 조회
+
+JWT 기반으로 내 정보(/me) 확인
+
+gateway
+
+인증 미들웨어
+
+JWT 토큰 검증 후 x-user-id 헤더 전달
+
+gateway
+
+프록시 라우팅
+
+/auth → auth-service, /user → user-service로 프록시
+
+📁 폴더 구조 (auth-service 기준)
+
+src/
+├── controller/        # 각 기능 컨트롤러
+├── service/           # 핵심 비즈니스 로직
+├── middleware/        # 인증, 에러, 로깅, 속도제한 등
+├── routes/            # Express 라우터 정의
+├── entities/          # TypeORM 엔티티 (User, Token 등)
+├── dto/               # 입력값 검증용 DTO 클래스
+├── utils/             # JWT, Redis, Mail, Logger 등 유틸
+├── configs/           # DB 및 환경 설정
+├── index.ts           # App 미들웨어 및 라우팅 설정
+└── server.ts          # App 실행 진입점
+
+⚙️ 실행 방법 (auth-service 기준)
+
+# 1. 의존성 설치
+npm install
+
+# 2. 환경 변수 설정 (.env)
+SERVICE_PORT=4000
+DB_HOST=postgres-db
+DB_PORT=5432
+DB_USERNAME=youruser
+DB_PASSWORD=yourpassword
+DB_NAME=authdb
+JWT_ACCESS_SECRET=...
+JWT_REFRESH_SECRET=...
+MAIL_USER=...
+MAIL_PASS=...
+
+# 3. 서버 실행
+npm run dev
+
+🐳 Docker 기반 실행
+
+# 전체 서비스 통합 실행
+$ docker compose up --build
+
+# 종료
+$ docker compose down
+
+각 서비스는 독립된 Dockerfile과 .env를 가지고 있으며, 통합된 docker-compose로 실행됩니다.
+
+🔐 JWT 구성
+
+Access Token: 짧은 수명 (15분 ~ 1시간)
+
+Refresh Token: 7일 보관 (Redis + DB)
+
+userAgent & IP 기록으로 보안 강화
+
+Gateway 인증 미들웨어는 x-user-id를 헤더에 담아 각 서비스로 전달
+
+🔮 앞으로 구현할 기능
+
+
+
+📌 기술적 포인트 요약
+
+TypeORM v0.3+ 기반 DataSource 방식 구성
+
+MSA 구조에서 인증 도메인을 auth-service로 분리하여 SRP 유지
+
+RefreshToken을 Redis + DB에서 이중 관리 (만료/강제 로그아웃 구현 가능)
+
+Passport 기반 Google OAuth 로그인 구현 (소셜 계정 관리 테이블 활용)
+
+API Gateway에서 인증/프록시 역할 분리
+
+Logger(Winston), 미들웨어, 유틸, DTO, 에러 처리 등 공통 구조 통일화
 
