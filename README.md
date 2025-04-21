@@ -167,6 +167,5 @@ $ docker compose down
 
 ## 🧑‍💻 작성자
 
-- GitHub: [your-github-id](https://github.com/your-github-id)
 - 이메일: shrup5@naver.com
 
