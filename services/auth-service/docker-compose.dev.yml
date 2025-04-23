@@ -1,0 +1,25 @@
+services:
+  auth-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: auth-service-dev
+    env_file:
+      - .env
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      SERVICE_PORT: ${SERVICE_PORT}
+    ports:
+      - "${SERVICE_PORT}:${SERVICE_PORT}"
+    working_dir: /app
+    command: npm run dev
+    volumes:
+      - .:/app                   # ✅ 로컬 코드 반영
+      - /app/node_modules        # ✅ node_modules 충돌 방지
+    depends_on:
+      - redis
+      - db

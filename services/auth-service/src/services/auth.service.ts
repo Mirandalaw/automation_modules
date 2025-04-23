@@ -26,17 +26,17 @@ export const registerUser = async ({ name, email, password, phone }: RegisterUse
     throw new CustomError(409, '이미 존재하는 이메일입니다.');
   }
 
-  const userUUID = generateUUID();
+  // const userUUID = generateUUID();
   const hashedPassword = await bcrypt.hash(password, 10);
 
   const newUser = userRepository.create({
-    uuid: userUUID,
     name,
     email,
     password: hashedPassword,
     phone,
   });
-
+  // 추가 예정
+  // 회원가입 시, 로그인으로 바로 이동할 수 있게 refresh - cookie , access - json으로 전달
   try {
     await userRepository.save(newUser);
     logger.info(`[RegisterUser] 성공: ${email}`);
@@ -56,7 +56,7 @@ export const registerUser = async ({ name, email, password, phone }: RegisterUse
 
 // ✅ 사용자 로그인
 // 이메일과 비밀번호 검증 → Access/Refresh Token 발급
-export const loginUser = async ({ email, password }: LoginDto): Promise<SuccessResponse | ErrorResponse> => {
+export const loginUser = async ({ email, password }: LoginDto, userAgent: string, ip:string): Promise<SuccessResponse | ErrorResponse> => {
   const userRepository = AppDataSource.getRepository(User);
   const refreshTokenRepo = AppDataSource.getRepository(RefreshToken);
 
@@ -71,8 +71,8 @@ export const loginUser = async ({ email, password }: LoginDto): Promise<SuccessR
     throw  new CustomError(400, '비밀번호 로그인 불가한 계정입니다.');
   }
 
-  const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) {
+  const passwordMatch = await bcrypt.compare(password, user.password);
+  if(!passwordMatch){
     logger.warn(`[LoginUser] 비밀번호 불일치: ${email}`);
     throw new CustomError(401, 'Invalid password');
   }
@@ -81,14 +81,20 @@ export const loginUser = async ({ email, password }: LoginDto): Promise<SuccessR
   const refreshToken = generateRefreshToken(user.uuid);
   const expiredAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7); // 7일
 
+  // Redis 저장
   await saveRefreshToken(user.uuid, refreshToken);
-  await refreshTokenRepo.save({
-    token: refreshToken,
-    user: { uuid: user.uuid },
-    expiredAt,
-  });
 
-  logger.info(`[LoginUser] 로그인 성공: ${email}`);
+  // DB 저장
+  const tokenEntitiy = refreshTokenRepo.create({
+    token: refreshToken,
+    user,
+    userAgent,
+    ip,
+    expiredAt,
+  })
+  await refreshTokenRepo.save(tokenEntitiy);
+
+  logger.info(`[LoginUser] 로그인 성공: ${email} | UA=${userAgent} | IP=${ip}`);
   return {
     success: true,
     message: 'Login successful',
@@ -189,7 +195,7 @@ export const sendResetCodeForUser = async (email: string) => {
   const code = Math.floor(100000 + Math.random() * 900000).toString(); // 6자리
   await redis.set(`reset:${email}`, code, 'EX', 300); // 5분 유효
 
-  await sendEmail(email, '비밀번호 재설정 인증코드', `인증코드: ${code}`);
+  await sendEmail("shrup5@naver.com", '비밀번호 재설정 인증코드', `인증코드: ${code}`);
   logger.info(`[SendResetCode] 인증 코드 전송 완료: ${email}`);
 
   return { message: '인증코드를 이메일로 전송했습니다' };

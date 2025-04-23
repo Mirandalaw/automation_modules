@@ -42,9 +42,18 @@ const register = async (req: Request, res: Response) => {
 const login = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body as LoginDto;
-    logger.info(`[Login] 요청: ${email}`);
+    const userAgent = req.headers['user-agent'] || 'unknown';
+    const rawIp = req.headers['x-forwarded-for'];
+    const ip =
+      typeof rawIp === 'string'
+        ? rawIp
+        : Array.isArray(rawIp)
+          ? rawIp[0]
+          : req.socket.remoteAddress || 'unknown';
 
-    const result = await loginUser(req.body as LoginDto);
+    logger.info(`[Login] 요청: ${email} | UA=${userAgent} | IP=${ip}`);
+
+    const result = await loginUser(req.body as LoginDto, userAgent,ip);
 
     if (result.success && 'data' in result) {
       res.cookie('refreshToken', result.data.refreshToken, {

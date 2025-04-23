@@ -1,0 +1,19 @@
+# Node modules
+/node_modules
+
+# TypeScript build output
+/dist
+
+# Environment files containing sensitive data
+/.env
+
+# Log files
+*.log
+
+# Docker-related files
+docker-compose.yml
+Dockerfile
+
+# IDE settings
+.vscode/
+.idea/

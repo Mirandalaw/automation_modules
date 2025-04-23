@@ -21,20 +21,20 @@ const refreshTokenOptions: jwt.SignOptions = {
 
 
 export const generateAccessToken = (uuid: string): string => {
-  return jwt.sign({ uuid }, accessSecret, accessTokenOptions);
+  return jwt.sign({ userId : uuid }, accessSecret, accessTokenOptions);
 };
 
 export const generateRefreshToken = (uuid: string): string => {
-  return jwt.sign({ uuid }, refreshSecret, refreshTokenOptions);
+  return jwt.sign({ userId : uuid }, refreshSecret, refreshTokenOptions);
 };
 
-export const verifyAccessToken = (token: string): JwtPayload => {
-  return jwt.verify(token, accessSecret) as JwtPayload;
-};
-
-export const verifyRefreshToken = (token: string): JwtPayload => {
-  return jwt.verify(token, refreshSecret) as JwtPayload;
-};
+// export const verifyAccessToken = (token: string): JwtPayload => {
+//   return jwt.verify(token, accessSecret) as JwtPayload;
+// };
+//
+// export const verifyRefreshToken = (token: string): JwtPayload => {
+//   return jwt.verify(token, refreshSecret) as JwtPayload;
+// };
 
 export const decodeJwtPayload = (token: string): any => {
   try {

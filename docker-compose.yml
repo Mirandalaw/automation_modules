@@ -1,0 +1,95 @@
+services:
+  postgres-db:
+    image: postgres:15
+    container_name: postgres-db
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - '${NEW_DB_PORT}:${DB_PORT}'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - msa-network
+
+  redis:
+    image: redis:7
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - '${REDIS_PORT}:${REDIS_PORT}'
+    networks:
+      - msa-network
+
+  auth-service:
+    build: ./services/auth-service
+    container_name: auth-service
+    ports:
+      - '${AUTH_PORT}:${AUTH_PORT}'
+    env_file:
+      - .env
+      - ./services/auth-service/.env
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - PORT=${AUTH_PORT}
+    depends_on:
+      - postgres-db
+      - redis
+    networks:
+      - msa-network
+
+  user-service:
+    build: ./services/user-service
+    container_name: user-service
+    ports:
+      - '${USER_PORT}:${USER_PORT}'
+    env_file:
+      - .env
+      - ./services/user-service/.env
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - PORT=${USER_PORT}
+    depends_on:
+      - postgres-db
+    networks:
+      - msa-network
+
+  gateway:
+    build: ./gateway
+    container_name: api-gateway
+    ports:
+      - '${PORT}:${PORT}'
+    env_file:
+      - .env
+      - ./gateway/.env
+    environment:
+      - PORT=${PORT}
+      - AUTH_SERVICE_URL=${AUTH_SERVICE_URL}
+      - USER_SERVICE_URL=${USER_SERVICE_URL}
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - auth-service
+      - user-service
+    networks:
+      - msa-network
+
+volumes:
+  postgres_data:
+
+networks:
+  msa-network:
+    driver: bridge
