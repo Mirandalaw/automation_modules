@@ -1,5 +1,6 @@
 import Redis from 'ioredis';
-import logger from './logger'; // ✅ Winston 로거 추가
+import logger from './logger';
+import { RefreshTokenPayload } from '../types/jwt';
 
 const redis = new Redis({
   host: process.env.REDIS_HOST || 'redis',
@@ -20,18 +21,43 @@ redis.on('error', (err) => {
 
 export default redis;
 
-export const saveRefreshToken = async (userId: string, token: string) => {
-  await redis.set(`refresh:user:${userId}`, token, 'EX', 60 * 60 * 24 * 7); // 7일
+/**
+ * RefreshToken Payload를 Redis에 저장
+ * - 구조화된 객체 형태로 저장
+ * @param userId
+ * @param payload
+ */
+export const saveRefreshToken = async (userId: string, payload: RefreshTokenPayload & {
+  token: string,
+  expiredAt: number
+}) => {
+  const key = `refreshToken:${userId}`;
+  await redis.set(key, JSON.stringify(payload), 'EX', 60 * 60 * 24 * 7);
   logger.info(`[Redis] 토큰 저장 완료 | userId: ${userId}`);
 };
 
+/**
+ * Redis에서 RefreshToken Payload 조회
+ * @param userId
+ */
 export const getRefreshToken = async (userId: string) => {
-  const token = await redis.get(`refresh:user:${userId}`);
-  logger.info(`[Redis] 토큰 조회 | userId: ${userId} | 존재 여부: ${!!token}`);
-  return token;
+  const key = `refreshToken:${userId}`;
+  const data = await redis.get(key);
+  if (!data) {
+    logger.info(`[Redis] 토근 조회 실패 | userId: ${userId}`);
+    return null;
+  }
+
+  logger.info(`[Redis] 토큰 조회 성공 | userId: ${userId}`);
+  return JSON.parse(data) as RefreshTokenPayload & { token: string; expiredAt: number };
 };
 
+/**
+ * Redis에서 RefreshToken 삭제
+ * @param userId
+ */
 export const deleteRefreshToken = async (userId: string) => {
-  await redis.del(`refresh:user:${userId}`);
+  const key = `refreshToken:${userId}`;
+  await redis.del(key);
   logger.info(`[Redis] 토큰 삭제 완료 | userId: ${userId}`);
 };
