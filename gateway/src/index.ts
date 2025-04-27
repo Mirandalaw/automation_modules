@@ -1,20 +1,18 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
+
 import router from './routes';
-import logger from './utils/logger';
+import { requestLogger } from './middleware/requestLogger';
+import errorHandler from './middleware/errorHandler';
 
 const app = express();
 
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
+app.use(requestLogger);
 
-app.use((req, res, next) => {
-  logger.info(`[Gateway Request] ${req.method} ${req.originalUrl}`);
-  next();
-});
-
-app.use('/', router);
-
+app.use('/api', router);
+app.use(errorHandler);
 export default app;
