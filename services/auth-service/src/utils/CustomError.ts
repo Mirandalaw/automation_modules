@@ -1,31 +1,33 @@
 import logger from './logger';
 
+interface CustomErrorOptions {
+  details?: string;
+  path?: string;
+  userId?: string;
+  reqId?: string;
+}
+
 export class CustomError extends Error {
-  public statusCode: number;
-  public details?: string;
-  public timestamp: string;
-  public path?: string;
-  public userId?: string;
-  public reqId?: string;
+  public readonly statusCode: number;
+  public readonly details?: string;
+  public readonly timestamp: string;
+  public readonly path?: string;
+  public readonly userId?: string;
+  public readonly reqId?: string;
 
   constructor(
     statusCode: number,
     message: string,
-    options?: {
-      details?: string;
-      path?: string;
-      userId?: string;
-      reqId?: string;
-    }
+    options: CustomErrorOptions = {}
   ) {
     super(message);
+
     this.name = 'CustomError';
     this.statusCode = statusCode;
-    this.message = message;
-    this.details = options?.details;
-    this.path = options?.path;
-    this.userId = options?.userId;
-    this.reqId = options?.reqId;
+    this.details = options.details;
+    this.path = options.path;
+    this.userId = options.userId;
+    this.reqId = options.reqId;
     this.timestamp = new Date().toISOString();
 
     Error.captureStackTrace(this, this.constructor);
@@ -54,7 +56,7 @@ export class CustomError extends Error {
       userId: this.userId,
       reqId: this.reqId,
       timestamp: this.timestamp,
-      stack: this.stack
+      stack: this.stack,
     });
   }
 }

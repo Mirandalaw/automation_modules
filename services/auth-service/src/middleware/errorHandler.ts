@@ -1,36 +1,47 @@
 import { Request, Response, NextFunction } from 'express';
 import { CustomError } from '../utils/CustomError';
 import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
+import logger from '../utils/logger';
 
+/**
+ * 글로벌 에러 핸들러
+ * - 모든 미들웨어, 라우터에서 던진 에러를 처리
+ */
 const errorHandler = (
   err: unknown,
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  // CustomError 처리
+  let statusCode = 500;
+  let message = '서버 내부 오류가 발생했습니다.';
+
   if (err instanceof CustomError) {
-    return res.status(err.statusCode).json({ message: err.message });
+    err.log();
+    statusCode = err.statusCode;
+    message = err.message;
+  } else if (err instanceof TokenExpiredError) {
+    logger.warn(`[ErrorHandler] 액세스 토큰 만료`);
+    statusCode = 401;
+    message = 'Access token이 만료되었습니다.';
+  } else if (err instanceof JsonWebTokenError) {
+    logger.warn(`[ErrorHandler] 잘못된 액세스 토큰`);
+    statusCode = 401;
+    message = '유효하지 않은 access token입니다.';
+  } else if (err instanceof Error) {
+    logger.error(`[ErrorHandler] 처리되지 않은 오류: ${err.message}`);
+    message = err.message;
+  } else {
+    logger.error(`[ErrorHandler] 알 수 없는 오류: ${JSON.stringify(err)}`);
   }
 
-  // JWT 관련 오류 처리
-  if (err instanceof TokenExpiredError) {
-    return res.status(401).json({ message: 'Access token expired' });
-  }
-
-  if (err instanceof JsonWebTokenError) {
-    return res.status(401).json({ message: 'Invalid access token' });
-  }
-
-  // 일반 Error 객체 처리
-  if (err instanceof Error) {
-    console.error('[Unhandled Error]', err);
-    return res.status(500).json({ message: err.message });
-  }
-
-  // 알 수 없는 오류 처리
-  console.error('[Unknown Error]', err);
-  return res.status(500).json({ message: 'Unexpected server error' });
+  res.status(statusCode).json({
+    success: false,
+    message,
+    timestamp: new Date().toISOString(),
+    path: req.originalUrl,
+    method: req.method,
+  });
 };
 
 export default errorHandler;

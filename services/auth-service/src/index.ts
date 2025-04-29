@@ -2,35 +2,36 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-
-dotenv.config();
-
-import { authRoutes } from './routes/auth.routes';
 import { connectDatabase } from './db/db';
+import { authRoutes } from './routes/auth.routes';
+import { sessionRoutes } from './routes/session.routes';
 import errorHandler from './middleware/errorHandler';
 import { loggerMiddleware } from './middleware/loggerMiddleware';
 import { globalLimiter } from './middleware/rateLimit';
+import logger from './utils/logger';
+import './utils/redis'; // Redis 연결
 
-import './utils/redis';
+// 환경변수 로드
+dotenv.config();
 
-
+// Express 앱 초기화
 const app = express();
 
-// TypeORM 연결
+// Database 연결
 connectDatabase();
 
-app.use(cors({
-  origin: 'http://localhost:5173',
-  credentials: true, // 만약 쿠키 등도 쓸 거면
-}));
-
+// 기본 미들웨어 등록
 app.use(express.json());
 app.use(cookieParser());
 app.use(loggerMiddleware);
 app.use(globalLimiter);
-app.use(authRoutes);
 
+// Route 등록
+app.use('/api/auth', authRoutes);
+app.use('/api/auth/sessions', sessionRoutes);
 
+// 에러 핸들러
 app.use(errorHandler);
+
 
 export default app;
