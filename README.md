@@ -1,171 +1,148 @@
-이 프로젝트는 실전 배포 수준의 인증 서비스를 직접 구현하고, **MSA 아키텍처 기반**으로 구조화한 경험을 담고 있습니다. 실무에서 바로 활용 가능한 수준의 설계, 보안 처리, API 응답 포맷, 로깅, 확장성 등을 모두 고려하여 완성도 있게 구성했습니다.
+#  Auth Service - Secure, Session-Aware Authentication API
 
-### ✅ 인증 로직 구현 완성도
-- JWT 기반 Access / Refresh Token 분리 및 재발급
-- 이메일 인증코드 및 비밀번호 재설정 로직 구현
-- Google 소셜 로그인 도입 (OAuth2)
-- RefreshToken에 `userAgent`, `ip` 저장 → 로그인 이력 보안 강화
+JWT + RefreshToken 기반의 인증 시스템으로  
+단순 로그인/회원가입을 넘어 **보안, 확장성, 세션관리**를 포함한 실전형 인증 백엔드입니다.
 
-### ✅ MSA 아키텍처 설계 경험
-- 인증 서비스(`auth-service`)와 사용자 서비스(`user-service`) 분리
-- API Gateway(`gateway`)로 모든 요청을 단일 Entry Point에서 관리
-- 서비스 간 독립성 확보 및 확장 고려 (도커 기반 배포 포함)
-
-### ✅ 보안 및 실무 고려
-- RefreshToken 이중 저장 (Redis + DB)
-- 인증 미들웨어로 API 접근 제어
-- rate-limit, logger, error-handler 등을 서비스별 모듈로 구성
-
-### ✅ 협업 및 유지보수 고려
-- DTO 기반 요청 유효성 검증
-- 커스텀 에러 구조화, 일관된 API 응답 포맷
-- 서비스별 `.env` 환경 파일 분리 및 Docker 통합 배포 준비
-
-> 위 프로젝트는 **실제 서비스 배포 및 운영을 목표**로 구성되었으며, 차후 CI/CD, Swagger, Naver/Kakao 소셜 로그인 등으로 확장 예정입니다.
+>  실서비스 수준의 인증 흐름을 재현하며, MSA 환경에서 API Gateway와 통합 가능한 구조로 설계되었습니다.
 
 ---
 
-# 🔐 Auth Service (Authentication & Authorization Microservice)
+##  Why This Service?
 
-인증과 인가를 책임지는 마이크로서비스입니다. JWT 기반 인증, Refresh Token 재발급, 소셜 로그인, 비밀번호 재설정 등 사용자 인증 전반을 담당합니다.
-
-본 프로젝트는 **MSA 기반 구조**로 설계되었으며, 하위 서비스로 `auth-service`, `user-service`, 그리고 이를 연결하는 `api-gateway`를 포함하고 있습니다.
-
----
-
-## 🧩 전체 서비스 구성 (MSA 기반)
-
-```
-automation_modules/
-├── services/
-│   ├── auth-service/     # 인증/인가 관련 로직
-│   ├── user-service/     # 유저 정보, 마이페이지 등 유저 도메인 분리
-├── gateway/              # API Gateway: 서비스별 라우팅, 인증 미들웨어 관리
-├── docker-compose.yml    # 전체 서비스 통합 구동
-```
+- **단일 로그인 보장**: userAgent + IP 기반의 세션 제어 → 중복 로그인 차단
+- **보안 중심 설계**: RefreshToken 저장소로 Redis 사용, 토큰 만료/회수 관리 포함
+- **운영 친화적 구조**: Docker 기반 배포, 모듈 분리, 서비스 확장성 고려
 
 ---
 
-## 🛠 기술 스택
+##  기술 스택
 
-- **언어**: TypeScript
-- **서버**: Express.js
-- **ORM**: TypeORM (v0.3.x)
-- **DB**: PostgreSQL
-- **캐시**: Redis (ioredis)
-- **인증**: JWT, OAuth2 (Google)
-- **보안**: bcrypt, Rate Limiting, RefreshToken에 userAgent/ip 기록
-- **메일**: Nodemailer (SendGrid 전환 예정)
-- **배포**: Docker, Docker Compose
-- **아키텍처**: MSA (Microservices Architecture)
-
----
-
-## ✅ 구현된 기능
-
-| 서비스 | 기능 | 설명 |
-|--------|------|------|
-| auth-service | 회원가입 / 로그인 | bcrypt로 비밀번호 암호화, 중복 이메일 검사 |
-| auth-service | JWT 인증 | Access / Refresh Token 분리 및 재발급 |
-| auth-service | 이메일 인증 코드 전송 | Redis에 저장 후 5분 유효 |
-| auth-service | 비밀번호 재설정 | 인증코드 검증 후 비밀번호 재설정 |
-| auth-service | 아이디(이메일) 찾기 | 이름+전화번호로 이메일 마스킹 반환 |
-| auth-service | 소셜 로그인 (Google) | 최초 로그인 시 자동 가입, 이후 자동 로그인 |
-| auth-service | RefreshToken 관리 | Redis + DB 동시 저장, userAgent 및 IP 기록 |
-| user-service | 마이페이지 조회 | JWT 기반으로 내 정보(`/me`) 확인 |
-| gateway | 인증 미들웨어 | JWT 토큰 검증 후 x-user-id 헤더 전달 |
-| gateway | 프록시 라우팅 | /auth → auth-service, /user → user-service로 프록시 |
+| 범주        | 기술 요소                            |
+|-------------|---------------------------------------|
+| Language    | TypeScript                            |
+| Backend     | Node.js (Express)                     |
+| Auth        | JWT, Refresh Token                    |
+| DB          | PostgreSQL                            |
+| Cache       | Redis (Session / Token Store)         |
+| ORM         | TypeORM                               |
+| Infra       | Docker, Docker Compose                |
+| Docs        | Swagger (OpenAPI)                     |
+| Logger      | Winston                                |
+| Validator   | class-validator, DTO-based validation |
+| Test        | Jest (단위 테스트)                     |
 
 ---
 
-## 📁 폴더 구조 (auth-service 기준)
+##  주요 기능
 
-```bash
-src/
-├── controller/        # 각 기능 컨트롤러
-├── service/           # 핵심 비즈니스 로직
-├── middleware/        # 인증, 에러, 로깅, 속도제한 등
-├── routes/            # Express 라우터 정의
-├── entities/          # TypeORM 엔티티 (User, Token 등)
-├── dto/               # 입력값 검증용 DTO 클래스
-├── utils/             # JWT, Redis, Mail, Logger 등 유틸
-├── configs/           # DB 및 환경 설정
-├── index.ts           # App 미들웨어 및 라우팅 설정
-└── server.ts          # App 실행 진입점
+| 기능                    | 설명 |
+|-------------------------|------|
+| 회원가입 / 로그인        | 이메일 + 비밀번호 기반 인증 |
+| Access/Refresh Token 발급 | AccessToken은 짧은 생명, RefreshToken은 Redis에 저장 |
+| 세션 관리               | 각 로그인 세션은 userAgent + IP로 구분되어 Redis에 저장 |
+| 중복 로그인 차단        | 동일 유저가 다른 브라우저에서 로그인 시 기존 세션 무효화 |
+| 토큰 재발급             | RefreshToken 만료 여부 확인 → 재로그인 or 자동 재발급 |
+| 비밀번호 재설정 / 이메일 찾기 | 이메일 인증 기반 로직 포함 |
+| 자동 만료 정책          | Redis TTL 설정 기반 세션 자동 만료 |
+| 관리자 로그 아카이브     | 인증 시도 기록 (예정 기능) |
+
+---
+
+##  인증 플로우 (시퀀스 다이어그램)
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant API Gateway
+    participant AuthService
+    participant Redis
+    participant PostgreSQL
+
+    Client->>API Gateway: 로그인 요청 (ID/PW)
+    API Gateway->>AuthService: 로그인 요청
+    AuthService->>PostgreSQL: 사용자 확인
+    AuthService->>Redis: RefreshToken 저장 (userId, userAgent, ip)
+    AuthService-->>Client: AccessToken + RefreshToken
+
+    Client->>API Gateway: 인증된 API 요청 (AccessToken)
+    API Gateway->>AuthService: 토큰 검증 요청
+    AuthService-->>API Gateway: 유효성 확인
+
+    Client->>API Gateway: 토큰 재발급 요청
+    API Gateway->>AuthService: RefreshToken 전달
+    AuthService->>Redis: 유효성 확인
+    AuthService-->>Client: 새 AccessToken
 ```
 
----
+## ⚙️ 실행 방법
 
-## ⚙️ 실행 방법 (auth-service 기준)
+### 1. 환경 변수 설정
 
-```bash
-# 1. 의존성 설치
-npm install
+루트 디렉토리에 `.env` 파일을 생성하고 아래와 같이 작성하세요.
 
-# 2. 환경 변수 설정 (.env)
-SERVICE_PORT=4000
-DB_HOST=postgres-db
+```env
+# PostgreSQL
+DB_HOST=localhost
 DB_PORT=5432
-DB_USERNAME=youruser
-DB_PASSWORD=yourpassword
-DB_NAME=authdb
-JWT_ACCESS_SECRET=...
-JWT_REFRESH_SECRET=...
-MAIL_USER=...
-MAIL_PASS=...
+DB_USER=your_user
+DB_PASSWORD=your_password
+DB_NAME=auth_service
 
-# 3. 서버 실행
-npm run dev
+# Redis
+REDIS_HOST=localhost
+REDIS_PORT=6379
+
+# JWT 설정
+JWT_SECRET=your_jwt_secret
+JWT_EXPIRES_IN=15m
+REFRESH_TOKEN_EXPIRES_IN=7d
+
+# 서비스 포트
+SERVICE_PORT=3000
 ```
 
----
-
-## 🐳 Docker 기반 실행
+### 2. Docker Compose로 실행
 
 ```bash
-# 전체 서비스 통합 실행
-$ docker compose up --build
-
-# 종료
-$ docker compose down
+docker compose up --build
 ```
 
-각 서비스는 독립된 Dockerfile과 `.env`를 가지고 있으며, 통합된 docker-compose로 실행됩니다.
+### 3. Swagger API 문서
+준비중...
 
 ---
 
-## 🔐 JWT 구성
+##  트러블슈팅 & 개선 이력
 
-- **Access Token**: 짧은 수명 (15분 ~ 1시간)
-- **Refresh Token**: 7일 보관 (Redis + DB)
-- **userAgent & IP 기록**으로 보안 강화
-- **Gateway 인증 미들웨어**는 x-user-id를 헤더에 담아 각 서비스로 전달
-
----
-
-## 🔮 앞으로 구현할 기능
-
-- [ ] Kakao / Naver 소셜 로그인 확장
-- [ ] 비밀번호 변경 이력 확인 및 재사용 방지
-- [ ] MFA (2차 인증) 적용
-- [ ] Role 기반 권한 시스템 (JWT에 roles 포함)
-- [ ] Swagger 기반 API 문서화
-- [ ] CI/CD 자동화 (GitHub Actions)
+| 이슈 또는 상황 | 해결 방법 / 개선 내역 |
+|----------------|------------------------|
+| Refresh Token 탈취 가능성 | Redis에 저장된 토큰마다 userAgent + IP 정보를 함께 저장하여 탈취 대응 |
+| 중복 로그인 허용 문제 | 동일한 userId의 세션이 여러 개일 경우 기존 세션 무효화 처리 추가 |
+| 세션 자동 만료 누락 | Redis TTL(Time To Live) 설정으로 세션 자동 만료 적용 |
+| Access Token 만료 처리 | 미들웨어에서 Access Token 만료 시, RefreshToken 통해 자동 재발급 구현 |
+| 비밀번호 재설정 시 인증 토큰 재사용 문제 | 인증 토큰 1회성 처리 + 만료 시간 설정 추가 |
 
 ---
 
-## 📌 기술적 포인트 요약
+## 📈 개선 예정 항목
 
-- TypeORM v0.3+ 기반 DataSource 방식 구성
-- MSA 구조에서 인증 도메인을 auth-service로 분리하여 SRP 유지
-- RefreshToken을 Redis + DB에서 이중 관리 (만료/강제 로그아웃 구현 가능)
-- Passport 기반 Google OAuth 로그인 구현 (소셜 계정 관리 테이블 활용)
-- API Gateway에서 인증/프록시 역할 분리
-- Logger(Winston), 미들웨어, 유틸, DTO, 에러 처리 등 공통 구조 통일화
+- [ ] Google OAuth2 로그인 연동
+- [ ] 관리자 전용 로그인 이력 조회 API
+- [ ] 로그인 시도 실패 알림 기능 (보안 알림)
+- [ ] 2FA (Two-Factor Authentication) 연동
+- [ ] GitHub Actions 기반 CI/CD 자동 배포 파이프라인
+- [ ] 테스트 커버리지 90% 이상 달성 및 통합 테스트 도입
+- [ ] 이벤트 기반 로그 수집 시스템 연동 (예: Kafka + ELK)
 
 ---
 
-## 🧑‍💻 작성자
+## ✍ 작성자 정보
 
-- 이메일: shrup5@naver.com
+| 이름   | 포지션            | 링크 |
+|--------|-------------------|------|
+| 박경도 | 백엔드 개발자 (Node.js, TS) | [GitHub](https://github.com/Mirandalaw) · [블로그](https://jeong-park.tistory.com/)) |
 
+> 본 서비스는 실제 사용자 인증 흐름과 운영 환경을 기반으로 설계되었으며,  
+> 실무에서 발생 가능한 보안/세션 이슈를 예방하고 유지보수 가능한 구조로 설계되었습니다.
+
+---
