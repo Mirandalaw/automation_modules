@@ -26,7 +26,7 @@ automation_modules/
 | ------------------- | --------------------------------- | --------------------------------------------- |
 | 🟣 **Auth Service** | 로그인, 토큰 발급, 세션 제어 및 보안 흐름 처리      | [🔗 설계 문서](./services/auth-service/README.md) |
 | 🔵 **User Service** | 사용자 정보 등록, 조회, 수정, 마이페이지 등 도메인 책임 | [🔗 설계 문서](./services/user-service/README.md) |
-| 🟠 **API Gateway**  | 모든 요청 라우팅, JWT 필터링 및 인증 처리 분기     | [🔗 설계 문서](./api-gateway/README.md)           |
+| 🟠 **API Gateway**  | 모든 요청 라우팅, JWT 필터링 및 인증 처리 분기     | [🔗 설계 문서](./gateway/README.md)           |
 
 > 전체 구조 이해를 위한 첫 진입점으로 본 표를 참고하시기 바랍니다.
 
