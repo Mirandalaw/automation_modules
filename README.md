@@ -1,234 +1,127 @@
-#  Auth Service - JWT + Redis + MSA 기반
+#  Automation\_modules - MSA 기반 인증·사용자 관리 시스템
 
-JWT + RefreshToken 기반의 인증 시스템으로  
-단순 로그인/회원가입을 넘어 **보안, 확장성, 세션관리**를 포함한 실전형 인증 백엔드입니다.
-
->  실서비스 수준의 인증 흐름을 재현하며, MSA 환경에서 API Gateway와 통합 가능한 구조로 설계되었습니다.
+> 본 프로젝트는 **Microservices Architecture (MSA)** 기반으로 구축된 인증 및 유저 관리 시스템입니다. 각 서비스는 독립적으로 실행되며, **API Gateway**를 통해 요청을 중앙에서 처리하고 분기합니다.
 
 ---
 
-## 프로젝트 개요
+## 📁 프로젝트 디렉토리 구조
 
-- **목표**: 인증 서비스 단독 모듈화 (MSA 기반) + 실무 보안 구조 학습
-- **기능**:
-  - 회원가입 / 로그인 / 로그아웃
-  - JWT Access & Refresh Token 발급 및 갱신
-  - Redis 기반 세션 저장 및 중복 로그인 방지
-  - 비밀번호 초기화 / 이메일 찾기 기능
+
+
+---
+
+
+
+
+```
+automation_modules/
+├── api-gateway/         # 요청 라우팅, 인증 필터링
+├── services/
+│   ├── auth-service/    # JWT + Redis 기반 인증 서비스
+│   └── user-service/    # 사용자 정보 CRUD 처리 서비스
+└── README.md            # 프로젝트 설명 문서
+```
+
+| 서비스                 | 설명                                | 문서 링크                                         |
+| ------------------- | --------------------------------- | --------------------------------------------- |
+| 🟣 **Auth Service** | 로그인, 토큰 발급, 세션 제어 및 보안 흐름 처리      | [🔗 설계 문서](./services/auth-service/README.md) |
+| 🔵 **User Service** | 사용자 정보 등록, 조회, 수정, 마이페이지 등 도메인 책임 | [🔗 설계 문서](./services/user-service/README.md) |
+| 🟠 **API Gateway**  | 모든 요청 라우팅, JWT 필터링 및 인증 처리 분기     | [🔗 설계 문서](./api-gateway/README.md)           |
+
+> 전체 구조 이해를 위한 첫 진입점으로 본 표를 참고하시기 바랍니다.
+
+---
+
+##  시스템 흐름 요약
+
+```mermaid
+flowchart TD
+    Client -->|모든 요청| API_Gateway
+    API_Gateway -->|/auth/*| Auth_Service
+    API_Gateway -->|/user/*| User_Service
+```
+
+* 모든 요청은 **API Gateway**를 통해 유입되며,
+* 인증 관련은 `auth-service`, 유저 관련은 `user-service`로 분기됩니다.
+* AccessToken이 필요하며, Gateway에서 **JWT 검증 후 라우팅**됩니다.
 
 ---
 
 ##  기술 스택
 
-| 범주        | 기술 요소                            |
-|-------------|---------------------------------------|
-| Language    | TypeScript                            |
-| Backend     | Node.js (Express)                     |
-| Auth        | JWT, Refresh Token                    |
-| DB          | PostgreSQL                            |
-| Cache       | Redis (Session / Token Store)         |
-| ORM         | TypeORM                               |
-| Infra       | Docker, Docker Compose                |
-| Docs        | Swagger (OpenAPI)                     |
-| Logger      | Winston                                |
-| Validator   | class-validator, DTO-based validation |
-| Test        | Jest (단위 테스트)                     |
+| 항목     | 사용 기술                          |
+| ------ | ------------------------------ |
+| 언어     | TypeScript                     |
+| 런타임    | Node.js (Express)              |
+| 인증     | JWT, RefreshToken, Redis 세션 제어 |
+| 데이터베이스 | PostgreSQL                     |
+| ORM    | TypeORM                        |
+| 캐시/세션  | Redis (TTL 기반)                 |
+| 배포     | Docker, Docker Compose         |
+| 문서화    | Swagger (예정)                   |
 
 ---
 
-##  주요 기능
-
-| 기능                    | 설명 |
-|-------------------------|------|
-| 회원가입 / 로그인        | 이메일 + 비밀번호 기반 인증 |
-| Access/Refresh Token 발급 | AccessToken은 짧은 생명, RefreshToken은 Redis에 저장 |
-| 세션 관리               | 각 로그인 세션은 userAgent + IP로 구분되어 Redis에 저장 |
-| 중복 로그인 차단        | 동일 유저가 다른 브라우저에서 로그인 시 기존 세션 무효화 |
-| 토큰 재발급             | RefreshToken 만료 여부 확인 → 재로그인 or 자동 재발급 |
-| 비밀번호 재설정 / 이메일 찾기 | 이메일 인증 기반 로직 포함 |
-| 자동 만료 정책          | Redis TTL 설정 기반 세션 자동 만료 |
-| 관리자 로그 아카이브     | 인증 시도 기록 (예정 기능) |
-
----
-
-
-## 폴더 구조
-
-```
-auth-service/
-├── src/
-│   ├── controllers/       # 라우터 핸들러
-│   ├── services/          # 비즈니스 로직
-│   ├── repositories/      # DB 액세스 로직
-│   ├── middlewares/       # 인증, 에러 핸들링 등
-│   ├── utils/             # 공통 유틸 함수
-│   ├── dtos/              # 요청/응답 DTO 정의
-│   └── configs/           # 환경 설정, DB 설정
-├── test/                  # 단위 테스트
-├── docker-compose.yml     # 서비스 통합 실행 환경
-└── README.md
-```
---- 
-
-##  시스템 구성 (MSA 흐름)
-
-```
-[Client] → [API Gateway] → [auth-service] → [user-service]
-                          ↘︎ Redis ↙︎      ↘︎ DB ↙︎
-```
-
-- API Gateway를 통해 인증 요청을 분기
-- AccessToken/RefreshToken 기반 인증 흐름
-- Redis에 사용자 세션 정보, 토큰 TTL 저장
-
----
-
-##  세션 제어 구조
-
-```
-[ 로그인 시 ]
-- 유저 인증 성공 → AccessToken + RefreshToken 발급
-- Redis.set(`session:{userId}:{userAgent}`, RefreshToken, TTL)
-
-[ 인증 요청 시 ]
-- AccessToken 만료 → RefreshToken 요청
-- Redis에 session 존재 여부 확인 후 새 AccessToken 발급
-
-[ 로그아웃 시 ]
-- Redis에서 해당 session 삭제
-```
-
----
-
-##  인증 플로우 (시퀀스 다이어그램)
-
-```mermaid
-sequenceDiagram
-    participant Client
-    participant API Gateway
-    participant AuthService
-    participant Redis
-    participant PostgreSQL
-
-    Client->>API Gateway: 로그인 요청 (ID/PW)
-    API Gateway->>AuthService: 로그인 요청
-    AuthService->>PostgreSQL: 사용자 확인
-    AuthService->>Redis: RefreshToken 저장 (userId, userAgent, ip)
-    AuthService-->>Client: AccessToken + RefreshToken
-
-    Client->>API Gateway: 인증된 API 요청 (AccessToken)
-    API Gateway->>AuthService: 토큰 검증 요청
-    AuthService-->>API Gateway: 유효성 확인
-
-    Client->>API Gateway: 토큰 재발급 요청
-    API Gateway->>AuthService: RefreshToken 전달
-    AuthService->>Redis: 유효성 확인
-    AuthService-->>Client: 새 AccessToken
-```
-
-## ⚙️ 실행 방법
+##  실행 방법 (Docker 기반)
 
 ### 1. 환경 변수 설정
 
-루트 디렉토리에 `.env` 파일을 생성하고 아래와 같이 작성하세요.
+각 서비스에 `.env` 파일을 생성하고, 다음 항목을 설정합니다:
 
-```env
+```
 # PostgreSQL
 DB_HOST=localhost
 DB_PORT=5432
 DB_USER=your_user
 DB_PASSWORD=your_password
-DB_NAME=auth_service
-
-# Redis
-REDIS_HOST=localhost
-REDIS_PORT=6379
-
-# JWT 설정
-JWT_SECRET=your_jwt_secret
-JWT_EXPIRES_IN=15m
-REFRESH_TOKEN_EXPIRES_IN=7d
+DB_NAME=user_service
 
 # 서비스 포트
-SERVICE_PORT=3000
+SERVICE_PORT=3001
+
+# 로그 설정 (옵션)
+LOG_LEVEL=debug
+LOG_PATH=./logs/app.log
+
+# 기타 (확장성 고려)
+NODE_ENV=development
 ```
 
-### 2. Docker Compose로 실행
+### 2. 전체 서비스 실행
 
 ```bash
+# 루트 디렉토리에서 실행
 docker compose up --build
 ```
 
-### 3. 로컬에서 실행
-```
-npm install
-npm run dev
-```
+> *독립 실행도 가능하지만, 전체 흐름 확인을 위해 `docker compose` 사용을 권장합니다.*
 
 ---
 
-##  주요 기능 설명
+## 🔐 보안 및 설계 특징
 
-###  회원가입 / 로그인
-- 비밀번호는 `bcrypt`로 해시 처리
-- 로그인 시 RefreshToken은 Redis에 저장
-
-###  토큰 재발급
-- AccessToken 만료 시, 유효한 RefreshToken을 통해 재발급
-
-###  중복 로그인 방지
-- Redis에서 동일 유저 ID + userAgent 기준으로 세션 1개 유지
-- 이전 세션 강제 만료 처리 가능
-
-###  로그아웃
-- Redis에서 해당 세션/토큰 삭제
-
-###  이메일 인증 기반 기능
-- 이메일 찾기 / 비밀번호 재설정 시 1회성 토큰 발급 후 만료시간 설정
+*  **API Gateway 기반 요청 라우팅 및 인증 검증**
+*  **userAgent + IP 조합 기반 Redis 세션 단일화** → 중복 로그인 방지
+*  **TTL 기반 세션 자동 만료 관리**
+*  **RefreshToken 서버 저장 구조**로 탈취 대응력 확보
+*  **서비스 간 책임 분리** → 인증/유저 기능의 독립 유지보수 가능
 
 ---
 
-##  테스트 전략
+##  테스트 및 운영 전략
 
-| 항목           | 방식                  |
-|----------------|-----------------------|
-| 유닛 테스트    | 각 서비스 및 유틸 함수 단위 테스트 |
-| 통합 테스트    | 로그인 → 재발급 흐름까지 확인     |
-| 테스트 커버리지 | 90% 이상 목표, `npm run test:cov` |
-
----
-
-##  트러블슈팅 & 개선 이력
-
-| 이슈 또는 상황 | 해결 방법 / 개선 내역 |
-|----------------|------------------------|
-| Refresh Token 탈취 가능성 | Redis에 저장된 토큰마다 userAgent + IP 정보를 함께 저장하여 탈취 대응 |
-| 중복 로그인 허용 문제 | 동일한 userId의 세션이 여러 개일 경우 기존 세션 무효화 처리 추가 |
-| 세션 자동 만료 누락 | Redis TTL(Time To Live) 설정으로 세션 자동 만료 적용 |
-| Access Token 만료 처리 | 미들웨어에서 Access Token 만료 시, RefreshToken 통해 자동 재발급 구현 |
-| 비밀번호 재설정 시 인증 토큰 재사용 문제 | 인증 토큰 1회성 처리 + 만료 시간 설정 추가 |
+| 항목      | 설명                                   |
+| ------- | ------------------------------------ |
+| 유닛 테스트  | Jest 기반 서비스 로직 단위 검증                 |
+| 통합 테스트  | 로그인 → 인증 검증 → 유저 조회 흐름 테스트           |
+| CI/CD   | GitHub Actions + Docker 기반 자동화 구축 예정 |
+| 로깅 및 추적 | Winston 기반 로깅 / Kafka + ELK 연동 계획 중  |
 
 ---
 
-## 📈 개선 예정 항목
+##  작성자 정보
 
-- [ ] Google OAuth2 로그인 연동
-- [ ] 관리자 전용 로그인 이력 조회 API
-- [ ] 로그인 시도 실패 알림 기능 (보안 알림)
-- [ ] 2FA (Two-Factor Authentication) 연동
-- [ ] GitHub Actions 기반 CI/CD 자동 배포 파이프라인
-- [ ] 테스트 커버리지 90% 이상 달성 및 통합 테스트 도입
-- [ ] 이벤트 기반 로그 수집 시스템 연동 (예: Kafka + ELK)
+| 이름  | 역할                         | 링크                                                                                |
+| --- | -------------------------- | --------------------------------------------------------------------------------- |
+| 박경도 | 백엔드 개발자 (Node.js, TS, MSA) | [GitHub](https://github.com/Mirandalaw) · [Blog](https://jeong-park.tistory.com/) |
 
----
-
-## ✍ 작성자 정보
-
-| 이름   | 포지션            | 링크 |
-|--------|-------------------|------|
-| 박경도 | 백엔드 개발자 (Node.js, TS) | [GitHub](https://github.com/Mirandalaw) · [블로그](https://jeong-park.tistory.com/)) |
-
-> 본 서비스는 실제 사용자 인증 흐름과 운영 환경을 기반으로 설계되었으며,  
-> 실무에서 발생 가능한 보안/세션 이슈를 예방하고 유지보수 가능한 구조로 설계되었습니다.
-
----
