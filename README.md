@@ -1,4 +1,4 @@
-#  Auth Service - Secure, Session-Aware Authentication API
+#  Auth Service - JWT + Redis + MSA 기반
 
 JWT + RefreshToken 기반의 인증 시스템으로  
 단순 로그인/회원가입을 넘어 **보안, 확장성, 세션관리**를 포함한 실전형 인증 백엔드입니다.
@@ -7,11 +7,14 @@ JWT + RefreshToken 기반의 인증 시스템으로
 
 ---
 
-##  Why This Service?
+## 프로젝트 개요
 
-- **단일 로그인 보장**: userAgent + IP 기반의 세션 제어 → 중복 로그인 차단
-- **보안 중심 설계**: RefreshToken 저장소로 Redis 사용, 토큰 만료/회수 관리 포함
-- **운영 친화적 구조**: Docker 기반 배포, 모듈 분리, 서비스 확장성 고려
+- **목표**: 인증 서비스 단독 모듈화 (MSA 기반) + 실무 보안 구조 학습
+- **기능**:
+  - 회원가입 / 로그인 / 로그아웃
+  - JWT Access & Refresh Token 발급 및 갱신
+  - Redis 기반 세션 저장 및 중복 로그인 방지
+  - 비밀번호 초기화 / 이메일 찾기 기능
 
 ---
 
@@ -45,6 +48,55 @@ JWT + RefreshToken 기반의 인증 시스템으로
 | 비밀번호 재설정 / 이메일 찾기 | 이메일 인증 기반 로직 포함 |
 | 자동 만료 정책          | Redis TTL 설정 기반 세션 자동 만료 |
 | 관리자 로그 아카이브     | 인증 시도 기록 (예정 기능) |
+
+---
+
+
+## 폴더 구조
+
+```
+auth-service/
+├── src/
+│   ├── controllers/       # 라우터 핸들러
+│   ├── services/          # 비즈니스 로직
+│   ├── repositories/      # DB 액세스 로직
+│   ├── middlewares/       # 인증, 에러 핸들링 등
+│   ├── utils/             # 공통 유틸 함수
+│   ├── dtos/              # 요청/응답 DTO 정의
+│   └── configs/           # 환경 설정, DB 설정
+├── test/                  # 단위 테스트
+├── docker-compose.yml     # 서비스 통합 실행 환경
+└── README.md
+```
+--- 
+
+##  시스템 구성 (MSA 흐름)
+
+```
+[Client] → [API Gateway] → [auth-service] → [user-service]
+                          ↘︎ Redis ↙︎      ↘︎ DB ↙︎
+```
+
+- API Gateway를 통해 인증 요청을 분기
+- AccessToken/RefreshToken 기반 인증 흐름
+- Redis에 사용자 세션 정보, 토큰 TTL 저장
+
+---
+
+##  세션 제어 구조
+
+```
+[ 로그인 시 ]
+- 유저 인증 성공 → AccessToken + RefreshToken 발급
+- Redis.set(`session:{userId}:{userAgent}`, RefreshToken, TTL)
+
+[ 인증 요청 시 ]
+- AccessToken 만료 → RefreshToken 요청
+- Redis에 session 존재 여부 확인 후 새 AccessToken 발급
+
+[ 로그아웃 시 ]
+- Redis에서 해당 session 삭제
+```
 
 ---
 
@@ -107,8 +159,42 @@ SERVICE_PORT=3000
 docker compose up --build
 ```
 
-### 3. Swagger API 문서
-준비중...
+### 3. 로컬에서 실행
+```
+npm install
+npm run dev
+```
+
+---
+
+##  주요 기능 설명
+
+###  회원가입 / 로그인
+- 비밀번호는 `bcrypt`로 해시 처리
+- 로그인 시 RefreshToken은 Redis에 저장
+
+###  토큰 재발급
+- AccessToken 만료 시, 유효한 RefreshToken을 통해 재발급
+
+###  중복 로그인 방지
+- Redis에서 동일 유저 ID + userAgent 기준으로 세션 1개 유지
+- 이전 세션 강제 만료 처리 가능
+
+###  로그아웃
+- Redis에서 해당 세션/토큰 삭제
+
+###  이메일 인증 기반 기능
+- 이메일 찾기 / 비밀번호 재설정 시 1회성 토큰 발급 후 만료시간 설정
+
+---
+
+##  테스트 전략
+
+| 항목           | 방식                  |
+|----------------|-----------------------|
+| 유닛 테스트    | 각 서비스 및 유틸 함수 단위 테스트 |
+| 통합 테스트    | 로그인 → 재발급 흐름까지 확인     |
+| 테스트 커버리지 | 90% 이상 목표, `npm run test:cov` |
 
 ---
 
