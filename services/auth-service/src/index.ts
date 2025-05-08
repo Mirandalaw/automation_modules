@@ -1,10 +1,10 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
-import cors from 'cors';
 import { connectDatabase } from './db/db';
 import { authRoutes } from './routes/auth.routes';
 import { sessionRoutes } from './routes/session.routes';
+import router from './routes/index';
 import errorHandler from './middleware/errorHandler';
 import { loggerMiddleware } from './middleware/loggerMiddleware';
 import { globalLimiter } from './middleware/rateLimit';
@@ -13,7 +13,6 @@ import './utils/redis'; // Redis 연결
 
 // 환경변수 로드
 dotenv.config();
-
 // Express 앱 초기화
 const app = express();
 
@@ -27,11 +26,9 @@ app.use(loggerMiddleware);
 app.use(globalLimiter);
 
 // Route 등록
-app.use('/api/auth', authRoutes);
-app.use('/api/auth/sessions', sessionRoutes);
+app.use('/',router);
 
 // 에러 핸들러
 app.use(errorHandler);
-
 
 export default app;

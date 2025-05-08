@@ -63,11 +63,11 @@ export class User {
 
   /** 개인정보 수집 동의한 날짜 */
   @Column({ type: 'timestamp', nullable: true })
-  privacyAgreementDate?: Date;
+  privacyAgreementDate?: Date | null;
 
   /** 개인정보 수집 동의 만료일 */
   @Column({ type: 'timestamp', nullable: true })
-  privacyAgreementExpireAt?: Date;
+  privacyAgreementExpireAt?: Date | null;
 
   /** 생성 일시 */
   @CreateDateColumn()

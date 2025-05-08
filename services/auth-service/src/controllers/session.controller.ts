@@ -1,9 +1,10 @@
 import { Request, Response } from 'express';
-import { getUserSessionsByUser, invalidateSessionById, invalidateAllSessions } from '../services/session.service';
+import { SessionService } from '../services/session.service';
 import { handleControllerError } from '../utils/handleError';
 import resHandler from '../utils/resHandler';
 import logger from '../utils/logger';
 
+const sessionService = new SessionService();
 /**
  * [GET] /sessions
  * - 현재 로그인한 유저의 모든 활성 세션 조회
@@ -16,7 +17,7 @@ export const getSessions = async (req: Request, res: Response) => {
       return resHandler(res, 401, 'Unauthorized: 사용자 ID가 없습니다.');
     }
 
-    const result = await getUserSessionsByUser(userId);
+    const result = await sessionService.getSessionByUser(userId);
 
     logger.info(`[GetSessions] 성공: userId=${userId}`);
     return resHandler(res, 200, '세션 목록 조회 성공', result.sessions);
@@ -44,7 +45,7 @@ export const deleteSession = async (req: Request, res: Response) => {
       return resHandler(res, 400, 'Bad Request: 세션 ID가 필요합니다.');
     }
 
-    const result = await invalidateSessionById(userId, sessionId);
+    const result = await sessionService.invalidateSessionById(userId, sessionId);
 
     logger.info(`[DeleteSession] 세션 무효화 성공: userId=${userId}, sessionId=${sessionId}`);
     return resHandler(res, 200, result.message);
@@ -66,7 +67,7 @@ export const deleteAllSessions = async (req: Request, res: Response) => {
       return resHandler(res, 401, 'Unauthorized: 사용자 ID가 없습니다.');
     }
 
-    const result = await invalidateAllSessions(userId);
+    const result = await sessionService.invalidateAllSessions(userId);
 
     logger.info(`[DeleteAllSessions] 모든 세션 무효화 성공: userId=${userId}`);
     return resHandler(res, 200, result.message);

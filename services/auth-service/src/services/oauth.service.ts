@@ -6,12 +6,13 @@ import { generateAccessToken, generateRefreshToken } from '../utils/jwt';
 import { saveRefreshToken } from '../utils/redis';
 import logger from '../utils/logger';
 import { CustomError } from '../utils/CustomError';
+import { AccessTokenPayload, RefreshTokenPayload } from '../types/jwt';
+import { Session } from '../entities/Session';
 
 /**
- * ✅ Google OAuth 프로필을 기반으로 사용자 조회 또는 생성
+ * Google OAuth 프로필을 기반으로 사용자 조회 또는 생성
  * - 이미 연동된 소셜 계정이 있다면 기존 유저 반환
  * - 없으면 User 및 UserSocialAccount 새로 생성
- *
  * @param profile Google OAuth 인증 후 받은 사용자 정보
  * @returns User 엔티티 인스턴스
  */
@@ -64,25 +65,45 @@ export const findOrCreateUser = async (profile: Profile): Promise<User> => {
 };
 
 /**
- * ✅ OAuth 로그인 후 AccessToken / RefreshToken 발급 및 Redis 저장
- *
+ * OAuth 로그인 후 AccessToken / RefreshToken 발급 및 Redis 저장
  * @param user 로그인된 사용자 엔티티
  * @returns 토큰 객체 { accessToken, refreshToken }
  */
-export const handleOAuthLogin = async (user: User) => {
+export const handleOAuthLogin = async (user: User, session : Session) => {
   try {
-    const accessToken = generateAccessToken(user.uuid);
-    const refreshToken = generateRefreshToken(user.uuid);
 
-    await saveRefreshToken(user.uuid, refreshToken);
-    logger.info(`[OAuth] 토큰 발급 및 저장 완료: userId=${user.uuid}`);
+    const now = Math.floor(Date.now() / 1000);
 
-    return {
-      accessToken,
-      refreshToken,
+    // AccessToken 발급
+    const accessTokenPayload: AccessTokenPayload = {
+      userId: user.uuid,
+      roles: [],
+      issuedAt: now,
+      expiresAt: now + 60 * 15,
     };
+
+    const refreshTokenPayload: RefreshTokenPayload = {
+      userId: user.uuid,
+      sessionId: session.id,
+      userAgent : session.userAgent,
+      ipAddress : session.ipAddress,
+      loginAt: now,
+    };
+
+    const accessToken = generateAccessToken(accessTokenPayload);
+    const refreshToken = generateRefreshToken(refreshTokenPayload);
+
+    await saveRefreshToken(user.uuid, {
+      ...refreshTokenPayload,
+      token: refreshToken,
+      expiredAt: session.expiredAt.getTime(),
+    });
+    logger.info(`[OAuthLogin] 토큰 발급 및 Redis 저장 완료: userId=${user.uuid}`);
+
+
+    return { accessToken, refreshToken };
   } catch (err: any) {
-    logger.error(`[OAuth] 토큰 처리 실패: ${err.message}`);
-    throw new CustomError(500, '토큰 처리 중 오류 발생', err.message);
+    logger.error(`[OAuthLogin] 토큰 처리 실패: ${err.message}${err.stack}`);
+    throw new CustomError(500, 'OAuth 토큰 처리 중 오류 발생', err.message);
   }
 };

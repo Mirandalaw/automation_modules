@@ -35,13 +35,13 @@ const extractClientIp = (req: Request): string => {
  */
 const register = async (req: Request, res: Response) => {
   try {
-    const { name, email, password, phone } = req.body as RegisterUserDto;
+    const { name, email, password, phone,agreedToPrivacyPolicy } = req.body as RegisterUserDto;
     const userAgent = req.headers['user-agent'] || 'unknown';
     const ip = extractClientIp(req);
 
     logger.info(`[Register] 요청: ${email} | UA=${userAgent} | IP=${ip}`);
 
-    const result = await registerUser({ name, email, password, phone },userAgent,ip);
+    const result = await registerUser({ name, email, password, phone,agreedToPrivacyPolicy },userAgent,ip);
     logger.info(`[Register] 성공: ${email}`);
 
     return resHandler(res, 201, result.message, result.data);
@@ -182,7 +182,7 @@ const sendResetCode = async (req: Request, res: Response) => {
 };
 
 
-// ✅ 인증코드 검증
+// 인증코드 검증
 // 이메일과 인증코드를 비교하여 유효성 확인
 const verifyResetCode = async (req: Request, res: Response) => {
   try {
@@ -204,10 +204,10 @@ const verifyResetCode = async (req: Request, res: Response) => {
 // 인증된 사용자의 비밀번호를 새 비밀번호로 변경
 const resetPassword = async (req: Request, res: Response) => {
   try {
-    const { email, code, newPassword } = req.body;
+    const { email, newPassword } = req.body;
     logger.info(`[ResetPassword] 요청: ${email}`);
 
-    const result = await resetPasswordUser(email, code, newPassword);
+    const result = await resetPasswordUser(email, newPassword);
 
     logger.info(`[ResetPassword] 성공: ${email}`);
     return resHandler(res, 200, result.message);

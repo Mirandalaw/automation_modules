@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, Length, Matches } from 'class-validator';
+import { IsEmail, IsNotEmpty, Length, Matches, IsBoolean, Equals } from 'class-validator';
 
 export class RegisterUserDto {
   @IsNotEmpty({ message: '이름은 필수입니다.' })
@@ -14,4 +14,8 @@ export class RegisterUserDto {
     message: '휴대폰 번호는 010-XXXX-XXXX 형식이어야 합니다.',
   })
   phone: string;
+
+  @IsBoolean()
+  @Equals(true, { message: '개인정보 수집 및 이용 동의는 필수입니다.' })
+  agreedToPrivacyPolicy: boolean;
 }

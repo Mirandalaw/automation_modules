@@ -7,11 +7,6 @@ import { errorHandler } from './middleware/errorHandler';
 
 const app = express();
 
-// 미들웨어 설정
-app.use(cors({
-  origin: 'http://localhost:5173',
-  credentials: true, // 만약 쿠키 등도 쓸 거면
-}));
 app.use(express.json());
 app.use(cookieParser());
 

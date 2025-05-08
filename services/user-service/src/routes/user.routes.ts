@@ -8,6 +8,6 @@ const router = express.Router();
  * @desc 현재 로그인한 사용자 정보 조회
  * @access Private (JWT)
  */
-router.get('/me', getMyPage);
+router.get('/user/me', getMyPage);
 
 export default router;

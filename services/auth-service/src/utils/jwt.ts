@@ -56,7 +56,7 @@ export const decodeJwtPayload = (token: string): any => {
 };
 
 /**
- * ✅ RefreshToken 정식 검증 및 payload 추출
+ * RefreshToken 정식 검증 및 payload 추출
  * @param token RefreshToken
  * @returns RefreshTokenPayload
  * @throws 오류 발생시 예외 처리
