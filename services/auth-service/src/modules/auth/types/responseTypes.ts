@@ -11,4 +11,14 @@ export interface AuthTokenBundle {
   refreshToken: string;
 }
 
-export type AuthResponse = ApiResponse<AuthTokenBundle>;
+export interface AuthWithUserResponseData {
+  user: {
+    uuid: string;
+    name: string;
+    email: string;
+  };
+  tokens: AuthTokenBundle;
+}
+
+export type AuthWithUserResponse = ApiResponse<AuthWithUserResponseData>;
+export type AuthTokenResponse = ApiResponse<AuthTokenBundle>;
