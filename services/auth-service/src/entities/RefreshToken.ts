@@ -33,4 +33,20 @@ export class RefreshToken {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @Column({ nullable: true })
+  sessionId?: string;
+
+  @Column({ nullable: true })
+  deviceId?: string;
+
+  @Column({ nullable: true })
+  platform?: string;
+
+  @Column({ nullable: true })
+  location?: string;
+
+  @Column({ nullable: true })
+  version?: string;
+
 }
