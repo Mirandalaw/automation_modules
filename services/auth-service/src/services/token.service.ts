@@ -1,136 +1,71 @@
-import { User } from '../entities/User';
+import { ITokenIssuer } from '../modules/auth/providers/interfaces/ITokenIssuer';
 import { Session } from '../entities/Session';
-import { AccessTokenPayload, RefreshTokenPayload } from '../types/jwt';
-import { generateAccessToken, generateRefreshToken } from '../utils/jwt';
-import { saveRefreshToken } from '../utils/redis';
-import { CustomError } from '../utils/CustomError';
+import { User } from '../entities/User';
 import logger from '../utils/logger';
+import { TokenPayloadFactory } from '../modules/auth/factories/TokenPayloadFactory';
+import { CustomError } from '../utils/CustomError';
+import { IRefreshTokenStore } from '../modules/auth/repositories/interfaces/IRefreshTokenStore';
 
+/**
+ * TokenService
+ * - JWT 발급과 Redis 저장 흐름을 담당하는 조립자
+ * - TokenPayloadFactory, ITokenIssuer, ITokenStore를 주입받아 처리
+ * - Usecase 계층에서 호출되며 단일 책임 원칙(SRP)을 지킴
+ */
 export class TokenService {
+  constructor(
+    private readonly tokenIssuer: ITokenIssuer,
+    private readonly refreshTokenRepository: IRefreshTokenStore,
+  ) {}
+
   /**
-   * AccessToken + RefreshToken 발급 및 Redis 저장
+   * AccessToken + RefreshToken 발급 및 저장
    * @param user 유저 엔티티
    * @param session 세션 엔티티
-   * @returns { accessToken, refreshToken }
+   * @returns accessToken, refreshToken
    */
-  async issue(user: User, session: Session){
-    try{
-      logger.debug(`[TokenService] 토큰 발급 시작: userId=${user.uuid}, sessionId=${session.id}`);
+  async issue(user: User, session: Session): Promise<{ accessToken: string; refreshToken: string }> {
+    try {
+      logger.debug(`[TokenService] 토큰 발급 시작: userId=${user.uuid},sessionId=${session.id}`);
 
-      const accessToken = this.createAccessToken(user);
-      const refreshToken = this.createRefreshToken(user,session);
+      // Payload 생성
 
-      logger.debug(`[TokenService] 토큰 생성 완료 - AccessToken 및 RefreshToken`);
+      const accessPayload = TokenPayloadFactory.buildAccessTokenPayload(user);
+      const refreshPayload = TokenPayloadFactory.buildRefreshTokenPayload(user, session);
 
+      // JWT 서명
 
-      await saveRefreshToken(user.uuid, {
-        ...this.buildRefreshPayload(user,session),
+      const accessToken = this.tokenIssuer.signAccessToken(accessPayload);
+      const refreshToken = this.tokenIssuer.signRefreshToken(refreshPayload);
+
+      // Redis 저장
+      await this.refreshTokenRepository.save(user.uuid, {
+        ...refreshPayload,
         token: refreshToken,
         expiredAt: session.expiredAt.getTime(),
       });
 
       logger.info(`[TokenService] 토큰 발급 및 저장 완료: userId=${user.uuid}`);
-
-      return {accessToken, refreshToken};
-    }catch (error: any) {
-      logger.error(`[TokenService] 토큰 처리 실패`, {
-        userId: user.uuid,
-        sessionId: session.id,
-        message: error.message,
-        stack: error.stack,
-      });
-      throw new CustomError(500, '토큰 발급 중 오류 발생', error.message);
-    }
-  }
-
-  /**
-   * AccessToken + RefreshToken 재발급 및 Redis 갱신
-   * @param user 유저 엔티티
-   * @param session 세션 엔티티
-   * @returns { accessToken, refreshToken }
-   */
-  async reissue(user: User, session: Session) {
-    try {
-      logger.debug(`[TokenService] 토큰 재발급 시작: userId=${user.uuid}, sessionId=${session.id}`);
-
-      const accessToken = this.createAccessToken(user);
-      const refreshToken = this.createRefreshToken(user, session);
-
-      logger.debug(`[TokenService] 재발급 토큰 생성 완료 - AccessToken 및 RefreshToken`);
-
-      await saveRefreshToken(user.uuid, {
-        ...this.buildRefreshPayload(user, session),
-        token: refreshToken,
-        expiredAt: session.expiredAt.getTime(),
-      });
-
-      logger.info(`[TokenService] 토큰 재발급 완료: userId=${user.uuid}`);
-
       return { accessToken, refreshToken };
     } catch (error: any) {
-      logger.error(`[TokenService] 토큰 재발급 실패`, {
+      logger.error(`[TokenService] 토큰 발급 실패`, {
         userId: user.uuid,
         sessionId: session.id,
         message: error.message,
         stack: error.stack,
       });
-      throw new CustomError(500, '토큰 재발급 중 오류 발생', error.message);
+      throw new CustomError(500, '토큰 발급 중 오류가 발생했습니다.', error.message);
     }
   }
 
   /**
-   * AccessToken 생성 ( JWT 서명 포함 )
+   * 토큰 재발급 (실제로는 issue()와 동일 로직 재사용)
    * @param user 유저 엔티티
-   * @returns JWT 문자열
+   * @param session 기존 세션 엔티티
+   * @returns accessToken, refreshToken
    */
-  private createAccessToken(user: User) : string {
-    const payload: AccessTokenPayload = this.buildAccessPayload(user);
-    logger.debug(`[TokenService] AccessToken Payload 생성 완료`);
-    return generateAccessToken(payload);
-  }
-
-  /**
-   * RefreshToken 생성 ( JWT 서명 포함 )
-   * @param user 유저 엔티티
-   * @param session 세션 엔티티
-   * @returns JWT 문자열
-   */
-  private createRefreshToken(user:User, session:Session) : string {
-    const payload: RefreshTokenPayload = this.buildRefreshPayload(user,session);
-    logger.debug(`[TokenService] RefreshToken Payload 생성 완료`);
-    return generateRefreshToken(payload);
-  }
-
-  /**
-   * AccessToken JWT Payload 구성
-   * @param user 유저 엔티티
-   * @returns AccessTokenPayload
-   */
-  private buildAccessPayload(user: User) : AccessTokenPayload {
-    const now = Math.floor(Date.now() / 1000);
-    return {
-      userId : user.uuid,
-      roles : user.roles?.map((r) => r.name) || [],
-      issuedAt : now,
-      expiresAt : now + 60 * 15,
-    };
-  }
-
-  /**
-   * RefreshToken JWT Payload 구성
-   * @param user 유저 엔티티
-   * @param session 세션 엔티티
-   * @returns RefreshTokenPayload
-   */
-
-  private buildRefreshPayload(user:User, session:Session): RefreshTokenPayload {
-    const now = Math.floor(Date.now()/1000);
-    return {
-      userId : user.uuid,
-      sessionId : session.id,
-      userAgent:session.userAgent,
-      ipAddress:session.ipAddress,
-      loginAt: now,
-    };
+  async reissue(user: User, session: Session): Promise<{ accessToken: string, refreshToken: string }> {
+    logger.debug(`[TokenService] 토큰 재발급 요청 수신: userId=${user.uuid}, sessionId=${session.id}`);
+    return this.issue(user, session);
   }
 }

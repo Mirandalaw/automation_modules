@@ -26,6 +26,3 @@ export interface RefreshTokenPayload {
   location?: string;      // (선택) 로그인 시 위치 정보 (ex: 서울시 강남구)
   version?: string;       // (선택) 클라이언트 앱 버전 (ex: 1.0.0)
 }
-
-
-
