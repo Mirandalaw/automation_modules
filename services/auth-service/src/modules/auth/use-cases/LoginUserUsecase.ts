@@ -9,6 +9,7 @@ import { HttpStatus } from '../../../constants/httpStatus';
 import { comparePassword } from '../../../utils/hash';
 import { SessionFactory } from '../factories/SessionFactory';
 import { RefreshTokenFactory } from '../factories/RefreshTokenFactory';
+import { LoginUserDto } from '../dtos/LoginUserDto';
 
 export class LoginUserUsecase{
   constructor(
@@ -24,12 +25,11 @@ export class LoginUserUsecase{
    * - 세션 및 토큰 발급
    */
   async execute(
-    email: string,
-    password: string,
-    userAgent: string,
-    ipAddress: string,
+   dto:LoginUserDto
   ): Promise<AuthWithUserResponse> {
-    logger.info(`[LoginUserUsecase] 로그인 요청: email=${email}, ip=${ipAddress}`);
+    const {email,password, userAgent,ip} = dto;
+
+    logger.info(`[LoginUserUsecase] 로그인 요청: email=${email}, ip=${ip}`);
 
     // 1. 사용자 조회
     const user = await this.userRepository.findByEmail(email);
@@ -52,7 +52,7 @@ export class LoginUserUsecase{
 
     // 3. 세션 생성
     const expiredAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7); // 7일
-    const session = SessionFactory.create({ user, userAgent, ip: ipAddress, expiredAt });
+    const session = SessionFactory.create({ user, userAgent, ip: ip, expiredAt });
     await this.sessionRepository.save(session);
 
     // 4. 토큰 발급
@@ -63,7 +63,7 @@ export class LoginUserUsecase{
       user,
       tokens.refreshToken,
       userAgent,
-      ipAddress,
+      ip,
       session.expiredAt,
     );
     await this.refreshTokenRepository.save(refreshTokenEntity);

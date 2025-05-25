@@ -1,5 +1,5 @@
 import { TokenService } from '../../../services/token.service';
-import { RegisterUserDto } from '../../../dto/RegisterUserDto';
+import { RegisterUserDto } from '../dtos/RegisterUserDto';
 import { AuthWithUserResponse } from '../types/responseTypes';
 import { CustomError } from '../../../utils/CustomError';
 import { HttpStatus } from '../../../constants/httpStatus';

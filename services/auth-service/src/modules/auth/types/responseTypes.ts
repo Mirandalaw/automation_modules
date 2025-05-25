@@ -5,12 +5,13 @@ export interface ApiResponse<T> {
   data: T;
 }
 
-// 구체적 응답 타입
+// Access/ Refresh Token 구조
 export interface AuthTokenBundle {
   accessToken: string;
   refreshToken: string;
 }
 
+// user & token return 구조
 export interface AuthWithUserResponseData {
   user: {
     uuid: string;
@@ -20,5 +21,12 @@ export interface AuthWithUserResponseData {
   tokens: AuthTokenBundle;
 }
 
+export interface FindEmailResponseData {
+  email : string;
+}
+
+// 응답 타입들
 export type AuthWithUserResponse = ApiResponse<AuthWithUserResponseData>;
 export type AuthTokenResponse = ApiResponse<AuthTokenBundle>;
+export type MessageResponse = ApiResponse<null>;
+export type FindEmailResponse = ApiResponse<FindEmailResponseData>;

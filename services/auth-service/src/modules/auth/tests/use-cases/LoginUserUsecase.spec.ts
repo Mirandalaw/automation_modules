@@ -11,6 +11,7 @@ import { HttpStatus } from '../../../../constants/httpStatus';
 import * as hashUtil from '../../../../utils/hash';
 import { SessionFactory } from '../../factories/SessionFactory';
 import { RefreshTokenFactory } from '../../factories/RefreshTokenFactory';
+import { LoginUserDto } from '../../dtos/LoginUserDto';
 
 jest.mock('../../factories/SessionFactory');
 jest.mock('../../factories/RefreshTokenFactory');
@@ -32,6 +33,13 @@ describe('LoginUserUsecase', () => {
   const password = 'plain-password';
   const ipAddress = '127.0.0.1';
   const userAgent = 'Chrome';
+
+  const dto: LoginUserDto ={
+    email,
+    password,
+    ip : ipAddress,
+    userAgent,
+  }
 
   const mockUser = {
     uuid: 'user-uuid-1',
@@ -59,7 +67,7 @@ describe('LoginUserUsecase', () => {
     });
     (RefreshTokenFactory.createWithMeta as jest.Mock).mockReturnValue({} as any);
 
-    const result = await usecase.execute(email, password, userAgent, ipAddress);
+    const result = await usecase.execute(dto);
 
     expect(result.success).toBe(true);
     expect(result.data.user.email).toBe(email);
@@ -69,8 +77,8 @@ describe('LoginUserUsecase', () => {
   it('should throw if email not found', async () => {
     (userRepository.findByEmail as jest.Mock).mockResolvedValue(null);
 
-    await expect(usecase.execute(email, password, userAgent, ipAddress)).rejects.toThrow(CustomError);
-    await expect(usecase.execute(email, password, userAgent, ipAddress)).rejects.toMatchObject({
+    await expect(usecase.execute(dto)).rejects.toThrow(CustomError);
+    await expect(usecase.execute(dto)).rejects.toMatchObject({
       statusCode: HttpStatus.UNAUTHORIZED,
     });
   });
@@ -79,8 +87,8 @@ describe('LoginUserUsecase', () => {
     const user = { ...mockUser, password: undefined } as User;
     (userRepository.findByEmail as jest.Mock).mockResolvedValue(user);
 
-    await expect(usecase.execute(email, password, userAgent, ipAddress)).rejects.toThrow(CustomError);
-    await expect(usecase.execute(email, password, userAgent, ipAddress)).rejects.toMatchObject({
+    await expect(usecase.execute(dto)).rejects.toThrow(CustomError);
+    await expect(usecase.execute(dto)).rejects.toMatchObject({
       statusCode: HttpStatus.UNAUTHORIZED,
     });
   });
@@ -89,8 +97,8 @@ describe('LoginUserUsecase', () => {
     (userRepository.findByEmail as jest.Mock).mockResolvedValue(mockUser);
     jest.spyOn(hashUtil, 'comparePassword').mockResolvedValue(false);
 
-    await expect(usecase.execute(email, password, userAgent, ipAddress)).rejects.toThrow(CustomError);
-    await expect(usecase.execute(email, password, userAgent, ipAddress)).rejects.toMatchObject({
+    await expect(usecase.execute(dto)).rejects.toThrow(CustomError);
+    await expect(usecase.execute(dto)).rejects.toMatchObject({
       statusCode: HttpStatus.UNAUTHORIZED,
     });
   });
