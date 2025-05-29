@@ -1,6 +1,6 @@
 import { SessionRepository } from '../../repositories/implementations/SessionRepository';
 import redis from '../../../../utils/redis';
-import { Session } from '../../../../entities/Session';
+import { Session } from '../../entities/Session';
 
 jest.mock('../../../../utils/redis');
 

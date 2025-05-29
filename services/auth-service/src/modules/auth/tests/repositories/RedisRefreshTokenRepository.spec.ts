@@ -1,6 +1,6 @@
 import { RedisRefreshTokenRepository } from '../../repositories/implementations/RedisRefreshTokenRepository';
 import redis from '../../../../utils/redis';
-import { RefreshTokenPayload } from '../../../../types/jwt';
+import { RefreshTokenPayload } from '../../types/jwt';
 
 jest.mock('../../../../utils/redis');
 

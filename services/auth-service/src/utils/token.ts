@@ -1,6 +1,6 @@
 import { AppDataSource } from '../configs/data-source';
-import { RefreshToken } from '../entities/RefreshToken';
-import { User } from '../entities/User';
+import { RefreshToken } from '../modules/auth/entities/RefreshToken';
+import { User } from '../modules/auth/entities/User';
 import logger from './logger';
 
 /**

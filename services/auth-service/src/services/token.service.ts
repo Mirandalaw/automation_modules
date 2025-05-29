@@ -1,6 +1,6 @@
 import { ITokenIssuer } from '../modules/auth/providers/interfaces/ITokenIssuer';
-import { Session } from '../entities/Session';
-import { User } from '../entities/User';
+import { Session } from '../modules/auth/entities/Session';
+import { User } from '../modules/auth/entities/User';
 import logger from '../utils/logger';
 import { TokenPayloadFactory } from '../modules/auth/factories/TokenPayloadFactory';
 import { CustomError } from '../utils/CustomError';

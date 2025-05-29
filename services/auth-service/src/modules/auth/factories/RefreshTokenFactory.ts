@@ -1,7 +1,7 @@
-import { RefreshToken } from '../../../entities/RefreshToken';
-import { User } from '../../../entities/User';
+import { RefreshToken } from '../entities/RefreshToken';
+import { User } from '../entities/User';
 import logger from '../../../utils/logger';
-import { RefreshTokenPayload } from '../../../types/jwt';
+import { RefreshTokenPayload } from '../types/jwt';
 
 /**
  * RefreshTokenFactory

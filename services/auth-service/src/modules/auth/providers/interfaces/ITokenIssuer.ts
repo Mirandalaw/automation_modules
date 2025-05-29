@@ -1,4 +1,4 @@
-import { AccessTokenPayload, RefreshTokenPayload } from '../../../../types/jwt'
+import { AccessTokenPayload, RefreshTokenPayload } from '../../types/jwt'
 
 export interface ITokenIssuer {
   signAccessToken(payload: AccessTokenPayload): string;

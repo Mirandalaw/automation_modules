@@ -4,14 +4,14 @@ import { ISessionRepository } from '../../repositories/interfaces/ISessionReposi
 import { IRefreshTokenRepository } from '../../repositories/interfaces/IRefreshTokenRepository';
 import { TokenService } from '../../../../services/token.service';
 import { RegisterUserUsecase } from '../../use-cases/RegisterUserUsecase';
-import { RegisterUserDto } from '../../../../dto/RegisterUserDto';
-import { User } from '../../../../entities/User';
+import { RegisterUserDto } from '../../dtos/RegisterUserDto';
+import { User } from '../../entities/User';
 import { UserFactory } from '../../factories/UserFactory';
 import { SessionFactory } from '../../factories/SessionFactory';
 import { RefreshTokenFactory } from '../../factories/RefreshTokenFactory';
 import { HttpStatus } from '../../../../constants/httpStatus';
 import { CustomError } from '../../../../utils/CustomError';
-import { Session } from '../../../../entities/Session';
+import { Session } from '../../entities/Session';
 
 jest.mock('../../factories/UserFactory');
 jest.mock('../../factories/SessionFactory');
@@ -27,7 +27,7 @@ describe('RegisterUserUsecase', () => {
     userRepository,
     sessionRepository,
     refreshTokenRepository,
-    tokenService
+    tokenService,
   );
 
   const dto: RegisterUserDto = {

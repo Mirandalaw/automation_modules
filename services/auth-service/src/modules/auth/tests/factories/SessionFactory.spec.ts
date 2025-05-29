@@ -1,6 +1,6 @@
 import { SessionFactory } from '../../factories/SessionFactory'
-import {User} from '../../../../entities/User';
-import { Session } from '../../../../entities/Session';
+import {User} from '../../entities/User';
+import { Session } from '../../entities/Session';
 
 describe('SessionFactory', () => {
   const mockUser: User = {

@@ -1,6 +1,6 @@
 import { DatabaseRefreshTokenRepository } from '../../repositories/implementations/DatabaseRefreshTokenRepository';
 import { Repository } from 'typeorm';
-import { RefreshToken } from '../../../../entities/RefreshToken';
+import { RefreshToken } from '../../entities/RefreshToken';
 import { mock } from 'jest-mock-extended';
 
 describe('DatabaseRefreshTokenRepository', () => {

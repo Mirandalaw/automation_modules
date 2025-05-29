@@ -1,5 +1,5 @@
-import { Session } from '../../../entities/Session';
-import { User } from '../../../entities/User';
+import { Session } from '../entities/Session';
+import { User } from '../entities/User';
 import logger from '../../../utils/logger';
 import { v4 as uuidv4 } from 'uuid';
 

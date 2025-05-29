@@ -1,6 +1,6 @@
 import jwt, { Secret, SignOptions } from 'jsonwebtoken';
 import { ITokenIssuer } from '../interfaces/ITokenIssuer';
-import { AccessTokenPayload, RefreshTokenPayload } from '../../../../types/jwt';
+import { AccessTokenPayload, RefreshTokenPayload } from '../../types/jwt';
 import logger from '../../../../utils/logger';
 
 const accessSecret = process.env.JWT_ACCESS_SECRET as Secret;

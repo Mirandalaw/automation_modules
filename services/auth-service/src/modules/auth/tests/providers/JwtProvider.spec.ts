@@ -1,4 +1,4 @@
-import { AccessTokenPayload, RefreshTokenPayload } from '../../../../types/jwt';
+import { AccessTokenPayload, RefreshTokenPayload } from '../../types/jwt';
 import * as jwt from 'jsonwebtoken';
 import { JwtProvider } from '../../providers/implementations/JwtProvider';
 

@@ -1,7 +1,7 @@
 import { Repository } from 'typeorm';
 import { mock, instance, when, verify, resetCalls, deepEqual } from 'ts-mockito';
 import { UserRepository } from '../../repositories/implementations/UserRepository';
-import { User } from '../../../../entities/User';
+import { User } from '../../entities/User';
 
 describe('UserRepository (with ts-mockito)', () => {
   let mockedRepo: Repository<User>;

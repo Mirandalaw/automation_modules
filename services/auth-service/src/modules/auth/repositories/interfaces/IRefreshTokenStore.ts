@@ -1,4 +1,4 @@
-import { RefreshTokenPayload } from '../../../../types/jwt';
+import { RefreshTokenPayload } from '../../types/jwt';
 
 export interface IRefreshTokenStore {
   save(userId: string, payload: RefreshTokenPayload & { token: string; expiredAt: number }): Promise<void>;

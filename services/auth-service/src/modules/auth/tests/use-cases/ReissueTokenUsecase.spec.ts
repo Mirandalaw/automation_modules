@@ -4,11 +4,11 @@ import { ISessionRepository } from '../../repositories/interfaces/ISessionReposi
 import { IRefreshTokenRepository } from '../../repositories/interfaces/IRefreshTokenRepository';
 import { TokenService } from '../../../../services/token.service';
 import { ITokenProvider } from '../../providers/interfaces/IJwtProvider';
-import { User } from '../../../../entities/User';
+import { User } from '../../entities/User';
 import { CustomError } from '../../../../utils/CustomError';
 import { HttpStatus } from '../../../../constants/httpStatus';
 import { mockDeep } from 'jest-mock-extended';
-import { RefreshTokenPayload } from '../../../../types/jwt';
+import { RefreshTokenPayload } from '../../types/jwt';
 import { RefreshTokenFactory } from '../../factories/RefreshTokenFactory';
 
 jest.mock('../../factories/RefreshTokenFactory');

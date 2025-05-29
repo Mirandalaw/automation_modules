@@ -8,8 +8,8 @@ import { HttpStatus } from '../../../constants/httpStatus';
 import logger from '../../../utils/logger';
 import { RefreshTokenFactory } from '../factories/RefreshTokenFactory';
 import { AuthTokenResponse } from '../types/responseTypes';
-import { Session } from '../../../entities/Session';
-import { RefreshTokenPayload } from '../../../types/jwt';
+import { Session } from '../entities/Session';
+import { RefreshTokenPayload } from '../types/jwt';
 
 /**
  * ReissueTokenUsecase

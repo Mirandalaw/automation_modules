@@ -1,5 +1,5 @@
-import { RegisterUserDto } from '../../../dto/RegisterUserDto';
-import { User } from '../../../entities/User';
+import { RegisterUserDto } from '../dtos/RegisterUserDto';
+import { User } from '../entities/User';
 import { hashPassword } from '../../../utils/hash';
 import logger from '../../../utils/logger';
 

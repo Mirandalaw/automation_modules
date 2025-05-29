@@ -1,6 +1,6 @@
-import { AccessTokenPayload, RefreshTokenPayload } from '../../../types/jwt';
-import { User } from '../../../entities/User';
-import { Session } from '../../../entities/Session';
+import { AccessTokenPayload, RefreshTokenPayload } from '../types/jwt';
+import { User } from '../entities/User';
+import { Session } from '../entities/Session';
 
 /**
  * TokenPayloadFactory

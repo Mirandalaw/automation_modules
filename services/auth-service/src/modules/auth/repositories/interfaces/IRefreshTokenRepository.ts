@@ -1,5 +1,5 @@
-import { RefreshTokenPayload } from '../../../../types/jwt';
-import { RefreshToken } from '../../../../entities/RefreshToken';
+import { RefreshTokenPayload } from '../../types/jwt';
+import { RefreshToken } from '../../entities/RefreshToken';
 
 export interface IRefreshTokenRepository {
   /**

@@ -1,4 +1,4 @@
-import { User } from '../../../../entities/User';
+import { User } from '../../entities/User';
 import { IUserRepository } from '../interfaces/IUserRepository';
 import { Repository } from 'typeorm';
 import logger from '../../../../utils/logger';

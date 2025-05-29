@@ -1,4 +1,4 @@
-import { RefreshTokenPayload } from '../../../../types/jwt';
+import { RefreshTokenPayload } from '../../types/jwt';
 import redis from '../../../../utils/redis';
 import logger from '../../../../utils/logger';
 import { IRefreshTokenStore } from '../interfaces/IRefreshTokenStore';

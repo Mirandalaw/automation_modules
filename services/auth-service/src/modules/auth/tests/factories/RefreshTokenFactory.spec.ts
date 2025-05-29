@@ -1,7 +1,7 @@
 import { RefreshTokenFactory } from '../../factories/RefreshTokenFactory';
-import { User } from '../../../../entities/User';
-import { RefreshTokenPayload } from '../../../../types/jwt';
-import { RefreshToken } from '../../../../entities/RefreshToken';
+import { User } from '../../entities/User';
+import { RefreshTokenPayload } from '../../types/jwt';
+import { RefreshToken } from '../../entities/RefreshToken';
 
 describe('RefreshTokenFactory', ()=>{
   const mockUser : User ={

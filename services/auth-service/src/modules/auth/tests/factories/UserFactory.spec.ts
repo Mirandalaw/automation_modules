@@ -1,7 +1,7 @@
-import {UserFactory} from '../../factories/UserFactory';
-import {RegisterUserDto} from '../../../../dto/RegisterUserDto';
+import { UserFactory } from '../../factories/UserFactory';
+import { RegisterUserDto } from '../../dtos/RegisterUserDto';
 import * as hashModule from '../../../../utils/hash';
-import { User } from '../../../../entities/User';
+import { User } from '../../entities/User';
 
 jest.mock('../../../../utils/hash'); // 해시 함수 mocking
 
