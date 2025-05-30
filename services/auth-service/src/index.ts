@@ -2,10 +2,10 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import { connectDatabase } from './db/db';
-import router from '../src/modules/auth/routes/index';
+import router from './routes/index';
 import errorHandler from './common/errors/errorHandler';
 import { loggerMiddleware } from './common/middlewares/loggerMiddleware';
-import { globalLimiter } from './middleware/rateLimit';
+import { globalLimiter } from './common/middlewares/rateLimit';
 import { swaggerSpec, swaggerUi } from '../src/docs/swagger';
 import './configs/redis'; // Redis 연결
 

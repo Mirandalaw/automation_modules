@@ -1,6 +1,6 @@
 import cron from 'node-cron';
 import { cleanupExpiredSessions } from './sessionCleaner';
-import logger from '../utils/logger';
+import logger from '../common/logger';
 
 /**
  * 스케줄러 초기화

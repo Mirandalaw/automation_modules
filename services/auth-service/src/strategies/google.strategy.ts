@@ -1,7 +1,7 @@
 import passport from 'passport';
 import { Strategy as GoogleStrategy, Profile } from 'passport-google-oauth20';
 import { findOrCreateUser } from '../services/oauth.service';
-import logger from '../utils/logger';
+import logger from '../common/logger';
 import { Express } from 'express';
 
 const {
@@ -11,7 +11,7 @@ const {
 } = process.env;
 
 if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET || !GOOGLE_CALLBACK_URL) {
-  throw new Error('❌ Google OAuth 환경변수가 설정되지 않았습니다.');
+  throw new Error(' Google OAuth 환경변수가 설정되지 않았습니다.');
 }
 
 passport.use(

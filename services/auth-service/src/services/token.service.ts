@@ -1,10 +1,10 @@
-import { ITokenIssuer } from '../modules/auth/providers/interfaces/ITokenIssuer';
-import { Session } from '../modules/auth/entities/Session';
-import { User } from '../modules/auth/entities/User';
+import { ITokenIssuer } from '../providers/interfaces/ITokenIssuer';
+import { Session } from '../entities/Session';
+import { User } from '../entities/User';
 import logger from '../common/logger';
-import { TokenPayloadFactory } from '../modules/auth/factories/TokenPayloadFactory';
+import { TokenPayloadFactory } from '../factories/TokenPayloadFactory';
 import { CustomError } from '../common/errors';
-import { IRefreshTokenStore } from '../modules/auth/repositories/interfaces/IRefreshTokenStore';
+import { IRefreshTokenStore } from '../repositories/interfaces/IRefreshTokenStore';
 
 /**
  * TokenService

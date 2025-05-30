@@ -1,6 +1,6 @@
 import { AppDataSource } from '../configs/data-source';
 import { Session } from '../entities/Session';
-import logger from '../utils/logger';
+import logger from '../common/logger';
 
 /**
  * 만료된 세션을 정리하는 작업
