@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import logger from '../utils/logger';
+import logger from '../common/logger';
 
 /**
  * 권한(Role) 기반 접근 제어 미들웨어

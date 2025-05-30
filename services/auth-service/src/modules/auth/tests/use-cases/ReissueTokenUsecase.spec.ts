@@ -5,7 +5,7 @@ import { IRefreshTokenRepository } from '../../repositories/interfaces/IRefreshT
 import { TokenService } from '../../../../services/token.service';
 import { ITokenProvider } from '../../providers/interfaces/IJwtProvider';
 import { User } from '../../entities/User';
-import { CustomError } from '../../../../utils/CustomError';
+import { CustomError } from '../../../../common/errors/CustomError';
 import { HttpStatus } from '../../../../constants/httpStatus';
 import { mockDeep } from 'jest-mock-extended';
 import { RefreshTokenPayload } from '../../types/jwt';

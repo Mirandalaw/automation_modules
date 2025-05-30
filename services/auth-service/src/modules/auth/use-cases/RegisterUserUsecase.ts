@@ -1,9 +1,9 @@
 import { TokenService } from '../../../services/token.service';
 import { RegisterUserDto } from '../dtos/RegisterUserDto';
 import { AuthWithUserResponse } from '../types/responseTypes';
-import { CustomError } from '../../../utils/CustomError';
+import { CustomError } from '../../../common/errors';
 import { HttpStatus } from '../../../constants/httpStatus';
-import logger from '../../../utils/logger';
+import logger from '../../../common/logger';
 import { IUserRepository } from '../repositories/interfaces/IUserRepository';
 import { ISessionRepository } from '../repositories/interfaces/ISessionRepository';
 import { UserFactory } from '../factories/UserFactory';

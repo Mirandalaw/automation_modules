@@ -1,7 +1,7 @@
 import { FindEmailUsecase } from '../../use-cases/FindEmailUsecase';
 import { IUserRepository } from '../../repositories/interfaces/IUserRepository';
 import { mockDeep } from 'jest-mock-extended';
-import { CustomError } from '../../../../utils/CustomError';
+import { CustomError } from '../../../../common/errors';
 import { HttpStatus } from '../../../../constants/httpStatus';
 
 describe('FindEmailUsecase', () => {

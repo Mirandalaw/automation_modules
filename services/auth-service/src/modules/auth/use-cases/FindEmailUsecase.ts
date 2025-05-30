@@ -1,7 +1,7 @@
 import { IUserRepository } from '../repositories/interfaces/IUserRepository';
-import { CustomError } from '../../../utils/CustomError';
+import { CustomError } from '../../../common/errors';
 import { HttpStatus } from '../../../constants/httpStatus';
-import logger from '../../../utils/logger';
+import logger from '../../../common/logger';
 import { FindEmailResponse } from '../types/responseTypes';
 import { FindEmailDto } from '../dtos/FindEmailDto';
 

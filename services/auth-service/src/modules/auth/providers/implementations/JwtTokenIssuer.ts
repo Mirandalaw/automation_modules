@@ -1,7 +1,7 @@
 import jwt, { Secret, SignOptions } from 'jsonwebtoken';
 import { ITokenIssuer } from '../interfaces/ITokenIssuer';
 import { AccessTokenPayload, RefreshTokenPayload } from '../../types/jwt';
-import logger from '../../../../utils/logger';
+import logger from '../../../../common/logger';
 
 const accessSecret = process.env.JWT_ACCESS_SECRET as Secret;
 const refreshSecret = process.env.JWT_REFRESH_SECRET as Secret;

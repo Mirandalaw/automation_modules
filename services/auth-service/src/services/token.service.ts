@@ -1,9 +1,9 @@
 import { ITokenIssuer } from '../modules/auth/providers/interfaces/ITokenIssuer';
 import { Session } from '../modules/auth/entities/Session';
 import { User } from '../modules/auth/entities/User';
-import logger from '../utils/logger';
+import logger from '../common/logger';
 import { TokenPayloadFactory } from '../modules/auth/factories/TokenPayloadFactory';
-import { CustomError } from '../utils/CustomError';
+import { CustomError } from '../common/errors';
 import { IRefreshTokenStore } from '../modules/auth/repositories/interfaces/IRefreshTokenStore';
 
 /**

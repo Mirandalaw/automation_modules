@@ -1,5 +1,5 @@
 import { IMailProvider } from '../interfaces/IMailProvider';
-import logger from '../../../../utils/logger';
+import logger from '../../../../common/logger';
 
 /**
  * FakeMailProvider

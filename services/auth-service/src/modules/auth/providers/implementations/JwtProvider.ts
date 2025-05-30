@@ -1,5 +1,5 @@
 import jwt, { JwtPayload, Secret, SignOptions } from 'jsonwebtoken';
-import logger from '../../../../utils/logger';
+import logger from '../../../../common/logger';
 import { ITokenProvider } from '../interfaces/IJwtProvider';
 import { AccessTokenPayload, RefreshTokenPayload } from '../../types/jwt';
 

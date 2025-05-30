@@ -1,7 +1,7 @@
 import { VerifyResetCodeUsecase} from '../../use-cases/VerfyResetCodeUsecase';
 import { IResetCodeRepository } from '../../repositories/interfaces/IResetCodeRepository';
 import { mockDeep } from 'jest-mock-extended';
-import { CustomError } from '../../../../utils/CustomError';
+import { CustomError } from '../../../../common/errors/CustomError';
 import { HttpStatus } from '../../../../constants/httpStatus';
 import { VerifyResetCodeDto } from '../../dtos/VerifyResetCodeDto';
 

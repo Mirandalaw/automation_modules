@@ -1,6 +1,6 @@
 import { IResetCodeRepository } from '../interfaces/IResetCodeRepository';
-import redis from '../../../../utils/redis';
-import logger from '../../../../utils/logger';
+import redis from '../../../../configs/redis';
+import logger from '../../../../common/logger';
 
 /**
  * ResetCodeRepository

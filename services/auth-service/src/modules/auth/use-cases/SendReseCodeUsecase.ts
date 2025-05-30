@@ -1,10 +1,10 @@
 import { IUserRepository } from '../repositories/interfaces/IUserRepository';
 import { IResetCodeRepository} from '../repositories/interfaces/IResetCodeRepository'
 import { IMailProvider } from '../providers/interfaces/IMailProvider';
-import { CustomError } from '../../../utils/CustomError';
+import { CustomError } from '../../../common/errors';
 import { HttpStatus } from '../../../constants/httpStatus';
 import { MessageResponse } from '../types/responseTypes';
-import logger from '../../../utils/logger';
+import logger from '../../../common/logger';
 import { SendResetCodeDto } from '../dtos/SendResetCodeDto';
 
 /**

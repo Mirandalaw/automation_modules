@@ -1,6 +1,6 @@
 import rateLimit from 'express-rate-limit';
 import { Request, Response } from 'express';
-import logger from '../utils/logger';
+import logger from '../common/logger';
 
 /**
  * 전역 요청 속도 제한 미들웨어

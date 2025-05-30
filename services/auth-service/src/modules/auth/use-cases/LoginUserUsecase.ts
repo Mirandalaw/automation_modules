@@ -3,8 +3,8 @@ import { ISessionRepository } from '../repositories/interfaces/ISessionRepositor
 import { IRefreshTokenRepository } from '../repositories/interfaces/IRefreshTokenRepository';
 import { TokenService } from '../../../services/token.service';
 import { AuthWithUserResponse } from '../types/responseTypes';
-import logger from '../../../utils/logger';
-import { CustomError } from '../../../utils/CustomError';
+import logger from '../../../common/logger';
+import { CustomError } from '../../../common/errors';
 import { HttpStatus } from '../../../constants/httpStatus';
 import { comparePassword } from '../../../utils/hash';
 import { SessionFactory } from '../factories/SessionFactory';

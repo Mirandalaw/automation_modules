@@ -1,6 +1,6 @@
 import { IUserRepository } from '../repositories/interfaces/IUserRepository';
-import logger from '../../../utils/logger';
-import { CustomError } from '../../../utils/CustomError';
+import logger from '../../../common/logger';
+import { CustomError } from '../../../common/errors';
 import { HttpStatus } from '../../../constants/httpStatus';
 import { hashPassword } from '../../../utils/hash';
 import { IResetCodeRepository } from '../repositories/interfaces/IResetCodeRepository';

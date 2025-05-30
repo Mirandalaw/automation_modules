@@ -1,5 +1,5 @@
 import { AppDataSource } from '../configs/data-source';
-import logger from '../utils/logger';
+import logger from '../common/logger';
 
 /**
  * Database 연결 함수

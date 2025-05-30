@@ -2,12 +2,12 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import { connectDatabase } from './db/db';
-import router from './routes/index';
-import errorHandler from './middleware/errorHandler';
-import { loggerMiddleware } from './middleware/loggerMiddleware';
+import router from '../src/modules/auth/routes/index';
+import errorHandler from './common/errors/errorHandler';
+import { loggerMiddleware } from './common/middlewares/loggerMiddleware';
 import { globalLimiter } from './middleware/rateLimit';
 import { swaggerSpec, swaggerUi } from '../src/docs/swagger';
-import './utils/redis'; // Redis 연결
+import './configs/redis'; // Redis 연결
 
 // 환경변수 로드
 dotenv.config();

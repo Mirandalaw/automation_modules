@@ -2,7 +2,7 @@ import { ISessionRepository } from '../repositories/interfaces/ISessionRepositor
 import { IRefreshTokenStore } from '../repositories/interfaces/IRefreshTokenStore';
 import { MessageResponse } from '../types/responseTypes';
 import { LogoutUserDto } from '../dtos/LogoutUserDto';
-import logger from '../../../utils/logger';
+import logger from '../../../common/logger';
 import { IRefreshTokenRepository } from '../repositories/interfaces/IRefreshTokenRepository';
 
 

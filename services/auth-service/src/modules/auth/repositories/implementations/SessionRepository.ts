@@ -1,7 +1,7 @@
 import { ISessionRepository } from '../interfaces/ISessionRepository';
 import { Session } from '../../entities/Session';
-import redis from '../../../../utils/redis';
-import logger from '../../../../utils/logger';
+import redis from '../../../../configs/redis';
+import logger from '../../../../common/logger';
 
 /**
  * SessionRepository

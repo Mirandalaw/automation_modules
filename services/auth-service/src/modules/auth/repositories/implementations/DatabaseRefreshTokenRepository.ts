@@ -2,7 +2,7 @@ import { IRefreshTokenRepository } from '../interfaces/IRefreshTokenRepository';
 import { Repository } from 'typeorm';
 import { RefreshToken } from '../../entities/RefreshToken';
 import { RefreshTokenPayload } from '../../types/jwt';
-import logger from '../../../../utils/logger';
+import logger from '../../../../common/logger';
 
 /**
  * DatabaseRefreshTokenRepository

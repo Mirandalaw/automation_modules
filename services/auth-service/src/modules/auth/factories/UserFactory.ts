@@ -1,7 +1,7 @@
 import { RegisterUserDto } from '../dtos/RegisterUserDto';
 import { User } from '../entities/User';
 import { hashPassword } from '../../../utils/hash';
-import logger from '../../../utils/logger';
+import logger from '../../../common/logger';
 
 const PRIVACY_AGREEMENT_VALID_DAYS = 365;
 

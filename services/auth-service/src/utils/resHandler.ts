@@ -1,5 +1,5 @@
 import { Response } from 'express';
-import logger from './logger';
+import logger from '../common/logger';
 
 /**
  * 통합 응답 핸들러

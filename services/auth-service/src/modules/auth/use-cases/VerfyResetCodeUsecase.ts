@@ -1,8 +1,8 @@
 import { IResetCodeRepository } from '../repositories/interfaces/IResetCodeRepository';
-import { CustomError } from '../../../utils/CustomError';
+import { CustomError } from '../../../common/errors';
 import { HttpStatus } from '../../../constants/httpStatus';
 import { MessageResponse } from '../types/responseTypes';
-import logger from '../../../utils/logger';
+import logger from '../../../common/logger';
 import { VerifyResetCodeDto } from '../dtos/VerifyResetCodeDto';
 
 /**

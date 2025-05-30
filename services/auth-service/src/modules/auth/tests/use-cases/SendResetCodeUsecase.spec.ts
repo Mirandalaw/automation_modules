@@ -3,7 +3,7 @@ import { IUserRepository } from '../../repositories/interfaces/IUserRepository';
 import { IResetCodeRepository } from '../../repositories/interfaces/IResetCodeRepository';
 import { IMailProvider } from '../../providers/interfaces/IMailProvider';
 import { mockDeep } from 'jest-mock-extended';
-import { CustomError } from '../../../../utils/CustomError';
+import { CustomError } from '../../../../common/errors/CustomError';
 import { HttpStatus } from '../../../../constants/httpStatus';
 import { SendResetCodeDto } from '../../dtos/SendResetCodeDto';
 

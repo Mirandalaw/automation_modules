@@ -10,7 +10,7 @@ import { UserFactory } from '../../factories/UserFactory';
 import { SessionFactory } from '../../factories/SessionFactory';
 import { RefreshTokenFactory } from '../../factories/RefreshTokenFactory';
 import { HttpStatus } from '../../../../constants/httpStatus';
-import { CustomError } from '../../../../utils/CustomError';
+import { CustomError } from '../../../../common/errors/CustomError';
 import { Session } from '../../entities/Session';
 
 jest.mock('../../factories/UserFactory');

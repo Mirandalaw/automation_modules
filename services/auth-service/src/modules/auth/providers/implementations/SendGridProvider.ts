@@ -1,7 +1,7 @@
 // src/modules/auth/providers/implementations/SendGridProvider.ts
 import sgMail from '@sendgrid/mail';
 import { IMailProvider } from '../interfaces/IMailProvider';
-import logger from '../../../../utils/logger';
+import logger from '../../../../common/logger';
 
 const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY!;
 const EMAIL_FROM = process.env.EMAIL_FROM!;

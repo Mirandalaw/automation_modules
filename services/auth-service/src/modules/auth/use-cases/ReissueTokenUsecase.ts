@@ -3,9 +3,9 @@ import { ISessionRepository } from '../repositories/interfaces/ISessionRepositor
 import { IRefreshTokenRepository } from '../repositories/interfaces/IRefreshTokenRepository';
 import { TokenService } from '../../../services/token.service';
 import { ITokenProvider } from '../providers/interfaces/IJwtProvider';
-import { CustomError } from '../../../utils/CustomError';
+import { CustomError } from '../../../common/errors';
 import { HttpStatus } from '../../../constants/httpStatus';
-import logger from '../../../utils/logger';
+import logger from '../../../common/logger';
 import { RefreshTokenFactory } from '../factories/RefreshTokenFactory';
 import { AuthTokenResponse } from '../types/responseTypes';
 import { Session } from '../entities/Session';

@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import logger from '../utils/logger';
+import logger from '../logger';
 
 /**
  * 요청 로깅 미들웨어

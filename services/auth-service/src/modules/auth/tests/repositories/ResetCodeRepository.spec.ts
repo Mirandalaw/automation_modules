@@ -1,7 +1,7 @@
 import { ResetCodeRepository } from '../../repositories/implementations/ResetCodeRepository';
-import redis from '../../../../utils/redis';
+import redis from '../../../../configs/redis';
 
-jest.mock('../../../../utils/redis');
+jest.mock('../../../../configs/redis');
 
 describe('ResetCodeRepository', () => {
   const repository = new ResetCodeRepository();

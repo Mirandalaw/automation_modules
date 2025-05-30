@@ -6,7 +6,7 @@ import { TokenService } from '../../../../services/token.service';
 import { mockDeep } from 'jest-mock-extended';
 import { User } from '../../entities/User';
 import { Session } from '../../entities/Session';
-import { CustomError } from '../../../../utils/CustomError';
+import { CustomError } from '../../../../common/errors/CustomError';
 import { HttpStatus } from '../../../../constants/httpStatus';
 import * as hashUtil from '../../../../utils/hash';
 import { SessionFactory } from '../../factories/SessionFactory';

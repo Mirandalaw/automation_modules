@@ -1,6 +1,6 @@
 import { RefreshToken } from '../entities/RefreshToken';
 import { User } from '../entities/User';
-import logger from '../../../utils/logger';
+import logger from '../../../common/logger';
 import { RefreshTokenPayload } from '../types/jwt';
 
 /**
