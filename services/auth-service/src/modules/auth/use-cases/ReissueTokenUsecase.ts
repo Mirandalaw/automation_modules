@@ -10,6 +10,7 @@ import { RefreshTokenFactory } from '../factories/RefreshTokenFactory';
 import { AuthTokenResponse } from '../types/responseTypes';
 import { Session } from '../entities/Session';
 import { RefreshTokenPayload } from '../types/jwt';
+import { ReissueTokenDto } from '../dtos/ReissueTokenDto';
 
 /**
  * ReissueTokenUsecase
@@ -29,10 +30,11 @@ export class ReissueTokenUsecase {
 
   /**
    * RefreshToken을 통해 AccessToken과 RefreshToken 재발급
-   * @param refreshToken 클라이언트로부터 전달받은 토큰
+   * @param dto 클라이언트로부터 전달받은 토큰
    * @returns 새롭게 발급된 access/refresh token
    */
-  async execute(refreshToken: string): Promise<AuthTokenResponse> {
+  async execute(dto: ReissueTokenDto): Promise<AuthTokenResponse> {
+    const refreshToken = dto.refreshToken;
     logger.info(`[ReissueTokenUsecase] 토큰 재발급 시도`);
 
     // 1. RefreshToken 검증 및 파싱
