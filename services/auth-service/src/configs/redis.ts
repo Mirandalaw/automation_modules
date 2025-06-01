@@ -1,6 +1,6 @@
 import Redis from 'ioredis';
 import logger from '../common/logger';
-import { RefreshTokenPayload } from '../modules/auth/types/jwt';
+import { RefreshTokenPayload } from '../types/jwt';
 
 const redis = new Redis({
   host: process.env.REDIS_HOST || 'redis',
