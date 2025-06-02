@@ -1,6 +1,6 @@
 import { SendMessageUsecase } from '../usecases/SendMessageUsecase';
 import { Namespace, Server, Socket } from 'socket.io';
-import {ChatRoomService} from '../services/ChatService';
+import {ChatRoomService} from '../services/ChatRoomService';
 import { SendMessageRequest } from '../dtos/SendMessageRequest';
 
 /**
