@@ -14,6 +14,6 @@ export class JoinRoomUsecase {
     if (alreadyJoined) return;
 
     const member = new ChatRoomMember(0, roomId, userId, new Date());
-    await this.memberRepository.save(member);
+     await this.memberRepository.save(member);
   }
 }

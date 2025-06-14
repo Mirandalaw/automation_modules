@@ -7,5 +7,6 @@ import { ChatMessage } from '../../entities/ChatMessage';
  */
 export interface IChatMessageRepository {
   findByRoomId(roomId: number): Promise<ChatMessage[]>;
+  findLatestMessage(roomId: number): Promise<ChatMessage | null>;
   save(message: ChatMessage): Promise<void>;
 }

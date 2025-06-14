@@ -1,29 +1,38 @@
 import { IChatRoomRepository } from '../repositories/interfaces/IChatRoomRepository';
 import { IChatRoomMemberRepository } from '../repositories/interfaces/IChatRoomMemberRepository';
-import { CreatePrivateRoomRequest } from '../dtos/CreatePrivateRoomRequest';
 import { ChatRoomFactory } from '../factories/ChatRoomFactory';
-import { ChatRoomMember } from '../entities/ChatRoomMember';
+import { ChatRoom } from '../entities/ChatRoom';
+import { ChatRoomMemberFactory } from '../factories/ChatRoomMemberFactory';
 
 /**
  * CreatePrivateRoomUsecase
- * - 거래 아이템 기반 1:1 PRIVATE 채팅방을 생성하고, 참여자를 등록함
+ * - 거래 아이템 기반으로 PRIVATE 채팅방 생성
+ * - 생성자도 자동 참여자로 등록
  */
 export class CreatePrivateRoomUsecase {
   constructor(
-    private readonly roomRepo: IChatRoomRepository,
-    private readonly memberRepo: IChatRoomMemberRepository
+    private readonly roomRepository: IChatRoomRepository,
+    private readonly memberRepository: IChatRoomMemberRepository
   ) {}
 
-  async execute(dto: CreatePrivateRoomRequest): Promise<number> {
-    const room = ChatRoomFactory.createPrivateRoom(dto.itemId, dto.sellerId);
-    await this.roomRepo.save(room);
+  async execute(itemId: number, createdBy: number): Promise<ChatRoom> {
+    // 1. 중복 방 확인
+    const existing = await this.roomRepository.findByItemId(itemId);
+    if (existing) return existing;
 
-    const buyer = new ChatRoomMember(room.id, dto.buyerId);
-    const seller = new ChatRoomMember(room.id, dto.sellerId);
+    // 2. 채팅방 생성
+    const tempRoom = ChatRoomFactory.createPrivateRoom(itemId, createdBy);
 
-    await this.memberRepo.save(buyer);
-    await this.memberRepo.save(seller);
+    // 3. 저장 후, 실제 ID가 부여된 room 반환
+    await this.roomRepository.save(tempRoom);
+    const savedRoom = await this.roomRepository.findByItemId(itemId);
+    if (!savedRoom) throw new Error('채팅방 저장 실패');
 
-    return room.id;
+    // 4. 실제 room.id 기반으로 참여자 등록
+
+    const member = ChatRoomMemberFactory.create(savedRoom.id, createdBy);
+    await this.memberRepository.save(member);
+
+    return savedRoom;
   }
 }
