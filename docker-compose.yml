@@ -31,7 +31,7 @@ services:
     ports:
       - '${AUTH_PORT}:${AUTH_PORT}'
     env_file:
-      - .env
+#      - .env
       - ./services/auth-service/.env
     environment:
       - DB_HOST=${DB_HOST}
@@ -42,6 +42,8 @@ services:
       - REDIS_HOST=${REDIS_HOST}
       - REDIS_PORT=${REDIS_PORT}
       - PORT=${AUTH_PORT}
+#      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+#      - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET}
     depends_on:
       - postgres-db
       - redis
@@ -80,7 +82,7 @@ services:
       - PORT=${PORT}
       - AUTH_SERVICE_URL=${AUTH_SERVICE_URL}
       - USER_SERVICE_URL=${USER_SERVICE_URL}
-      - JWT_SECRET=${JWT_SECRET}
+#      - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET}
     depends_on:
       - auth-service
       - user-service

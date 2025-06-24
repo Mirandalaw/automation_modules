@@ -4,7 +4,7 @@
 #      context: .
 #    container_name: auth-service
 #    env_file:
-#      - .env  # ✅ 루트 .env 사용
+#      - .env
 #    environment:
 #      DB_HOST: ${DB_HOST}
 #      DB_PORT: ${DB_PORT}
