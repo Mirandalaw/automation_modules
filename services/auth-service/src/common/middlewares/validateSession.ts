@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
-import { AppDataSource } from '../configs/data-source';
-import { Session } from '../entities/Session';
-import { CustomError } from '../utils/CustomError';
-import logger from '../utils/logger';
-import { getRefreshToken, saveRefreshToken } from '../utils/redis';
+import { AppDataSource } from '../../configs/data-source';
+import { Session } from '../../entities/Session';
+import { CustomError } from '../errors';
+import logger from '../logger';
+import { getRefreshToken, saveRefreshToken } from '../../configs/redis';
 
 /**
  * 세션 유효성 검증 및 자동 연장 미들웨어
