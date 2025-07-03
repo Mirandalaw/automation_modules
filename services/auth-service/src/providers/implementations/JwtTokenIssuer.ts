@@ -12,11 +12,11 @@ if (!accessSecret || !refreshSecret) {
 }
 
 const accessTokenOptions: SignOptions = {
-  expiresIn: (process.env.ACCESS_TOKEN_EXPIRY ?? '15m') as SignOptions['expiresIn'],
+  expiresIn: parseInt(process.env.ACCESS_TOKEN_EXPIRY ?? '900', 10),
 };
 
 const refreshTokenOptions: SignOptions = {
-  expiresIn: (process.env.REFRESH_TOKEN_EXPIRY ?? '7d') as SignOptions['expiresIn'],
+  expiresIn: parseInt(process.env.REFRESH_TOKEN_EXPIRY ?? '604800', 10),
 };
 
 /**

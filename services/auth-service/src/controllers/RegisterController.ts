@@ -34,8 +34,11 @@ export class RegisterController {
       const dto = req.body as RegisterUserDto;
 
       // 2. 보안 정보 추출 (클라이언트에서 보내지 않고 서버에서 추출)
-      const  userAgent = extractUserAgent(req);
-      const ip = extractIp(req);
+      // const  userAgent = extractUserAgent(req);
+      // const ip = extractIp(req);
+      const userAgent = req.headers['x-user-agent'] as string || 'unknown';
+      const ip = req.headers['x-ip'] as string || req.ip || 'unknown';
+
 
 
       // 3. 회원가입 비즈니스 로직 실행

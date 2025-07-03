@@ -5,10 +5,6 @@ services:
     restart: unless-stopped
     env_file:
       - .env
-    environment:
-      POSTGRES_USER: ${DB_USERNAME}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
     ports:
       - '${NEW_DB_PORT}:${DB_PORT}'
     volumes:
@@ -31,22 +27,13 @@ services:
     ports:
       - '${AUTH_PORT}:${AUTH_PORT}'
     env_file:
-#      - .env
+      - .env
       - ./services/auth-service/.env
-    environment:
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
-      - DB_USERNAME=${DB_USERNAME}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_NAME=${DB_NAME}
-      - REDIS_HOST=${REDIS_HOST}
-      - REDIS_PORT=${REDIS_PORT}
-      - PORT=${AUTH_PORT}
-#      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
-#      - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET}
     depends_on:
       - postgres-db
       - redis
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
     networks:
       - msa-network
 
@@ -58,13 +45,6 @@ services:
     env_file:
       - .env
       - ./services/user-service/.env
-    environment:
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
-      - DB_USERNAME=${DB_USERNAME}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_NAME=${DB_NAME}
-      - PORT=${USER_PORT}
     depends_on:
       - postgres-db
     networks:
@@ -78,14 +58,11 @@ services:
     env_file:
       - .env
       - ./gateway/.env
-    environment:
-      - PORT=${PORT}
-      - AUTH_SERVICE_URL=${AUTH_SERVICE_URL}
-      - USER_SERVICE_URL=${USER_SERVICE_URL}
-#      - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET}
     depends_on:
       - auth-service
       - user-service
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
     networks:
       - msa-network
 

@@ -11,6 +11,7 @@ if (!accessSecret || !refreshSecret) {
   throw new Error('JWT secrets are not defined in environment variables.');
 }
 
+// 예비용
 export class JwtProvider implements ITokenProvider {
   private static accessTokenOptions: SignOptions = {
     expiresIn: (process.env.ACCESS_TOKEN_EXPIRY ?? '15m') as SignOptions['expiresIn'],

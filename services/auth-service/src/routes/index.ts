@@ -4,7 +4,7 @@ import recoveryRouter from './recovery.router';
 
 const router = Router();
 
-router.use('/auth', authRouter);
+router.use('/', authRouter);
 router.use('/recovery', recoveryRouter);
 
 export default router;

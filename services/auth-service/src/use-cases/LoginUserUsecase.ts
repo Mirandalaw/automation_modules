@@ -31,55 +31,61 @@ export class LoginUserUsecase{
 
     logger.info(`[LoginUserUsecase] 로그인 요청: email=${email}, ip=${ip}`);
 
-    // 1. 사용자 조회
-    const user = await this.userRepository.findByEmail(email);
-    if (!user) {
-      logger.warn(`[LoginUserUsecase] 존재하지 않는 이메일: ${email}`);
-      throw new CustomError(HttpStatus.UNAUTHORIZED, '이메일 또는 비밀번호가 올바르지 않습니다.');
-    }
+    try{
+      // 1. 사용자 조회
+      const user = await this.userRepository.findByEmail(email);
+      if (!user) {
+        logger.warn(`[LoginUserUsecase] 존재하지 않는 이메일: ${email}`);
+        throw new CustomError(HttpStatus.UNAUTHORIZED, '이메일 또는 비밀번호가 올바르지 않습니다.');
+      }
 
-    // 2. 비밀번호 확인
+      // 2. 비밀번호 확인
 
-    if (!user.password) {
-      throw new CustomError(HttpStatus.UNAUTHORIZED, '비밀번호 정보가 없습니다.');
-    }
+      if (!user.password) {
+        throw new CustomError(HttpStatus.UNAUTHORIZED, '비밀번호 정보가 없습니다.');
+      }
 
-    const isMatch = await comparePassword(password, user.password);
-    if (!isMatch) {
-      logger.warn(`[LoginUserUsecase] 비밀번호 불일치: email=${email}`);
-      throw new CustomError(HttpStatus.UNAUTHORIZED, '이메일 또는 비밀번호가 올바르지 않습니다.');
-    }
+      const isMatch = await comparePassword(password, user.password);
+      if (!isMatch) {
+        logger.warn(`[LoginUserUsecase] 비밀번호 불일치: email=${email}`);
+        throw new CustomError(HttpStatus.UNAUTHORIZED, '이메일 또는 비밀번호가 올바르지 않습니다.');
+      }
 
-    // 3. 세션 생성
-    const expiredAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7); // 7일
-    const session = SessionFactory.create({ user, userAgent, ip: ip, expiredAt });
-    await this.sessionRepository.save(session);
+      // 3. 세션 생성
+      const expiredAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7); // 7일
+      const session = SessionFactory.create({ user, userAgent, ip: ip, expiredAt });
+      await this.sessionRepository.save(session);
 
-    // 4. 토큰 발급
-    const tokens = await this.tokenService.issue(user, session);
+      // 4. 토큰 발급
+      const tokens = await this.tokenService.issue(user, session);
 
-    // 5. RefreshToken 저장
-    const refreshTokenEntity = RefreshTokenFactory.createWithMeta(
-      user,
-      tokens.refreshToken,
-      userAgent,
-      ip,
-      session.expiredAt,
-    );
-    await this.refreshTokenRepository.save(refreshTokenEntity);
+      // 5. RefreshToken 저장
+      const refreshTokenEntity = RefreshTokenFactory.createWithMeta(
+        user,
+        tokens.refreshToken,
+        userAgent,
+        ip,
+        session.expiredAt,
+      );
+      await this.refreshTokenRepository.save(refreshTokenEntity);
 
-    // 6. 응답 반환
-    return {
-      success: true,
-      message: '로그인 성공',
-      data: {
-        user: {
-          uuid: user.uuid,
-          name: user.name,
-          email: user.email,
+      logger.info(`[LoginUserUsecase] 로그인 성공: userId=${user.uuid}`);
+// 6. 응답 반환
+      return {
+        success: true,
+        message: '로그인 성공',
+        data: {
+          user: {
+            uuid: user.uuid,
+            name: user.name,
+            email: user.email,
+          },
+          tokens,
         },
-        tokens,
-      },
-    };
+      };
+    } catch (error) {
+      logger.error(`[LoginUserUseacase] 로그인 처리 실패: ${(error as Error).message}`);
+      throw error;
+    }
   }
 }
