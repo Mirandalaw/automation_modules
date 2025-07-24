@@ -9,6 +9,7 @@ export interface ApiResponse<T> {
 export interface AuthTokenBundle {
   accessToken: string;
   refreshToken: string;
+  sessionId: string;
 }
 
 // user & token return 구조

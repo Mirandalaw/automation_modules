@@ -1,23 +1,36 @@
 services:
-  postgres-db:
-    image: postgres:15
-    container_name: postgres-db
-    restart: unless-stopped
-    env_file:
-      - .env
-    ports:
-      - '${NEW_DB_PORT}:${DB_PORT}'
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - msa-network
+#  postgres-auth-db:
+#    image: postgres:15
+#    container_name: postgres-auth-db
+#    restart: unless-stopped
+#    env_file:
+#      - ./services/auth-service/.env
+#    ports:
+#      - "${AUTH_DB_PORT}:5432"
+#    volumes:
+#      - postgres_auth_data:/var/lib/postgresql/data
+#    networks:
+#      - msa-network
+#
+#  postgres-user-db:
+#    image: postgres:15
+#    container_name: postgres-user-db
+#    restart: unless-stopped
+#    env_file:
+#      - ./services/user-service/.env
+#    ports:
+#      - "${USER_DB_PORT}:5432"
+#    volumes:
+#      - postgres_user_data:/var/lib/postgresql/data
+#    networks:
+#      - msa-network
 
   redis:
     image: redis:7
     container_name: redis
     restart: unless-stopped
     ports:
-      - '${REDIS_PORT}:${REDIS_PORT}'
+      - "${REDIS_PORT}:${REDIS_PORT}"
     networks:
       - msa-network
 
@@ -25,12 +38,11 @@ services:
     build: ./services/auth-service
     container_name: auth-service
     ports:
-      - '${AUTH_PORT}:${AUTH_PORT}'
+      - "${AUTH_PORT}:${AUTH_PORT}"
     env_file:
       - .env
       - ./services/auth-service/.env
     depends_on:
-      - postgres-db
       - redis
     volumes:
       - /etc/localtime:/etc/localtime:ro
@@ -41,12 +53,11 @@ services:
     build: ./services/user-service
     container_name: user-service
     ports:
-      - '${USER_PORT}:${USER_PORT}'
+      - "${USER_PORT}:${USER_PORT}"
     env_file:
       - .env
       - ./services/user-service/.env
-    depends_on:
-      - postgres-db
+    depends_on: []
     networks:
       - msa-network
 
@@ -54,7 +65,7 @@ services:
     build: ./gateway
     container_name: api-gateway
     ports:
-      - '${PORT}:${PORT}'
+      - "${PORT}:${PORT}"
     env_file:
       - .env
       - ./gateway/.env
@@ -67,7 +78,8 @@ services:
       - msa-network
 
 volumes:
-  postgres_data:
+  postgres_auth_data:
+  postgres_user_data:
 
 networks:
   msa-network:

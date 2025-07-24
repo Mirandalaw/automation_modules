@@ -16,7 +16,8 @@ export class TokenService {
   constructor(
     private readonly tokenIssuer: ITokenIssuer,
     private readonly refreshTokenRepository: IRefreshTokenStore,
-  ) {}
+  ) {
+  }
 
   /**
    * AccessToken + RefreshToken 발급 및 저장
@@ -24,7 +25,7 @@ export class TokenService {
    * @param session 세션 엔티티
    * @returns accessToken, refreshToken
    */
-  async issue(user: User, session: Session): Promise<{ accessToken: string; refreshToken: string }> {
+  async issue(user: User, session: Session): Promise<{ accessToken: string; refreshToken: string; sessionId: string }> {
     try {
       logger.debug(`[TokenService] 토큰 발급 시작: userId=${user.uuid},sessionId=${session.id}`);
 
@@ -46,7 +47,7 @@ export class TokenService {
       });
 
       logger.info(`[TokenService] 토큰 발급 및 저장 완료: userId=${user.uuid}`);
-      return { accessToken, refreshToken };
+      return { accessToken, refreshToken, sessionId: session.id };
     } catch (error: any) {
       logger.error(`[TokenService] 토큰 발급 실패`, {
         userId: user.uuid,
