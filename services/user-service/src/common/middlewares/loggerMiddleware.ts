@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import logger from '../utils/logger';
+import logger from '../../common/logger';
 
 export const loggerMiddleware = (req: Request, res: Response, next: NextFunction): void => {
   const method = req.method;

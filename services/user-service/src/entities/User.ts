@@ -2,19 +2,21 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
+  OneToOne,
+  OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
-  OneToMany,
 } from 'typeorm';
-import { UserSocialAccount } from './UserSocialAccount';
+import { UserProfile } from './UserProfile';
+import { UserStats } from './UserStats';
+import { Point } from './Point';
+import { Review } from './Review';
+import { PasswordHistory } from './PasswordHistory';
 
 @Entity()
 export class User {
-  @PrimaryGeneratedColumn('uuid')
-  uuid: string;
-
-  @Column()
-  name: string;
+  @PrimaryGeneratedColumn('increment')
+  id: number;
 
   @Column({ unique: true })
   email: string;
@@ -25,17 +27,23 @@ export class User {
   @Column({ nullable: true })
   phone?: string;
 
-  @OneToMany(() => UserSocialAccount, (account) => account.user, { cascade: true })
-  socialAccounts: UserSocialAccount[];
+  @OneToOne(() => UserProfile, (profile) => profile.user)
+  profile: UserProfile;
 
-  @Column({ default: false })
-  agreedToPrivacyPolicy: boolean;
+  @OneToOne(() => UserStats, (stats) => stats.user)
+  stats: UserStats;
 
-  @Column({ type: 'timestamp', nullable: true })
-  privacyAgreementDate?: Date;
+  @OneToMany(() => Point, (point) => point.user)
+  points: Point[];
 
-  @Column({ type: 'timestamp', nullable: true })
-  privacyAgreementExpireAt?: Date;
+  @OneToMany(() => Review, (review) => review.reviewer)
+  writtenReviews: Review[];
+
+  @OneToMany(() => Review, (review) => review.reviewee)
+  receivedReviews: Review[];
+
+  @OneToMany(() => PasswordHistory, (history) => history.user)
+  passwordHistories: PasswordHistory[];
 
   @CreateDateColumn()
   createdAt: Date;

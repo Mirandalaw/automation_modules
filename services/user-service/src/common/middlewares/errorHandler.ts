@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { CustomError } from '../utils/CustomError';
+import { CustomError } from '../errors';
 import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
-import logger from '../utils/logger';
+import logger from '../../common/logger';
 
 export const errorHandler = (
   err: unknown,

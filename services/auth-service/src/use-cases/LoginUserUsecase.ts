@@ -11,13 +11,14 @@ import { SessionFactory } from '../factories/SessionFactory';
 import { RefreshTokenFactory } from '../factories/RefreshTokenFactory';
 import { LoginUserDto } from '../dtos/LoginUserDto';
 
-export class LoginUserUsecase{
+export class LoginUserUsecase {
   constructor(
-    private readonly userRepository : IUserRepository,
+    private readonly userRepository: IUserRepository,
     private readonly sessionRepository: ISessionRepository,
-    private readonly  refreshTokenRepository: IRefreshTokenRepository,
-    private readonly  tokenService : TokenService
-  ) {}
+    private readonly refreshTokenRepository: IRefreshTokenRepository,
+    private readonly tokenService: TokenService,
+  ) {
+  }
 
   /**
    * 로그인 요청 처리
@@ -25,13 +26,13 @@ export class LoginUserUsecase{
    * - 세션 및 토큰 발급
    */
   async execute(
-   dto:LoginUserDto
+    dto: LoginUserDto,
   ): Promise<AuthWithUserResponse> {
-    const {email,password, userAgent,ip} = dto;
+    const { email, password, userAgent, ip } = dto;
 
     logger.info(`[LoginUserUsecase] 로그인 요청: email=${email}, ip=${ip}`);
 
-    try{
+    try {
       // 1. 사용자 조회
       const user = await this.userRepository.findByEmail(email);
       if (!user) {
@@ -80,7 +81,11 @@ export class LoginUserUsecase{
             name: user.name,
             email: user.email,
           },
-          tokens,
+          tokens :{
+            accessToken : tokens.accessToken,
+            refreshToken : tokens.refreshToken,
+            sessionId: tokens.sessionId,
+          }
         },
       };
     } catch (error) {

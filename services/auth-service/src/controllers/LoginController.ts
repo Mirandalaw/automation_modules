@@ -39,7 +39,7 @@ export class LoginController {
       // 3. 로그인 로직 실행
 
       const result = await this.loginUserUsecase.execute(dto);
-      return resHandler(res, HttpStatus.OK, '로그인 성공', result);
+      return resHandler(res, HttpStatus.OK, '로그인 성공', result.data);
     } catch (error: any) {
       return resHandler(
         res,

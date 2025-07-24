@@ -5,6 +5,8 @@ import {
   reissueTokenController,
   logoutController
 } from '../controllers';
+import { validateRequest } from '../common/middlewares/validateRequest';
+import { RegisterUserDto } from '../dtos/RegisterUserDto';
 
 const authRouter = Router();
 
@@ -12,7 +14,7 @@ const authRouter = Router();
  * @route   POST /auth/register
  * @desc    사용자 회원가입
  */
-authRouter.post('/auth/register', registerController.handle.bind(registerController));
+authRouter.post('/auth/register', validateRequest(RegisterUserDto),registerController.handle.bind(registerController));
 
 /**
  * @route   POST /auth/login

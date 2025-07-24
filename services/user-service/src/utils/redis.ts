@@ -1,5 +1,5 @@
 import Redis from 'ioredis';
-import logger from './logger'; // ✅ Winston 로거 추가
+import logger from '../common/logger'; // ✅ Winston 로거 추가
 
 const redis = new Redis({
   host: process.env.REDIS_HOST || 'redis',
