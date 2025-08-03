@@ -14,12 +14,12 @@ export class UserMeController {
 
   async handle(req: Request, res: Response) {
     try {
-      const userId = Number(req.user!.id);
-      logger.debug(`[UserMeController] /users/me 요청: userId=${userId}`);
+      const userUuid = req.user!.uuid;
+      logger.debug(`[UserMeController] /users/me 요청: uuid=${userUuid}`);
 
-      const data = await this.userService.getMyProfile(userId);
+      const data = await this.userService.getMyProfile(userUuid);
 
-      logger.info(`[UserMeController] 내 정보 조회 성공: userId=${userId}`);
+      logger.info(`[UserMeController] 내 정보 조회 성공: uuid=${userUuid}`);
       return resHandler(res, HttpStatus.OK, '내 정보 조회 성공', data);
     } catch (error: any) {
       logger.error(`[UserMeController] 내 정보 조회 실패: ${error.message}`);

@@ -1,11 +1,11 @@
 import {
   Entity,
-  PrimaryGeneratedColumn,
   Column,
   OneToOne,
   OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
+  PrimaryColumn,
 } from 'typeorm';
 import { UserProfile } from './UserProfile';
 import { UserStats } from './UserStats';
@@ -15,11 +15,18 @@ import { PasswordHistory } from './PasswordHistory';
 
 @Entity()
 export class User {
-  @PrimaryGeneratedColumn('increment')
+
+  @PrimaryColumn({ type: 'bigint' })
   id: number;
+
+  @Column({ type: 'uuid', unique: true })
+  uuid: string;
 
   @Column({ unique: true })
   email: string;
+
+  @Column()
+  nickname: string;
 
   @Column({ nullable: true })
   password?: string;

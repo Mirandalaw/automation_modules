@@ -3,6 +3,7 @@ import logger from '../../common/logger';
 import { ITokenProvider } from '../interfaces/IJwtProvider';
 import { AccessTokenPayload, RefreshTokenPayload } from '../../types/jwt';
 
+
 const accessSecret = process.env.JWT_ACCESS_SECRET as Secret;
 const refreshSecret = process.env.JWT_REFRESH_SECRET as Secret;
 

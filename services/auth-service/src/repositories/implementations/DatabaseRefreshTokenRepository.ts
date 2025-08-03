@@ -39,9 +39,8 @@ export class DatabaseRefreshTokenRepository implements IRefreshTokenRepository {
   async find(userId: string): Promise<(RefreshTokenPayload & { token: string; expiredAt: number }) | null> {
     logger.debug(`[DatabaseRefreshTokenRepository] 조회 시도: userId=${userId}`);
     const token = await this.ormRepository.findOne({
-      where: { user: { uuid: userId } },
+      where: {  userId } ,
       order: { expiredAt: 'DESC' },
-      relations: ['user'], // user FK 포함
     });
 
     if (!token) {
@@ -69,11 +68,12 @@ export class DatabaseRefreshTokenRepository implements IRefreshTokenRepository {
   async delete(userId: string): Promise<void> {
     logger.debug(`[DatabaseRefreshTokenRepository] 삭제 시도: userId=${userId}`);
     try {
-      await this.ormRepository.delete({ user: { uuid: userId } });
+      await this.ormRepository.delete({ userId });
       logger.info(`[DatabaseRefreshTokenRepository] 삭제 완료: userId=${userId}`);
     } catch (error) {
       logger.error(`[DatabaseRefreshTokenRepository] 삭제 실패: userId=${userId}, error=${(error as Error).message}`);
       throw error;
     }
-  };
+  }
+
 }

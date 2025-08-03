@@ -1,5 +1,5 @@
 import { IResetCodeRepository } from '../interfaces/IResetCodeRepository';
-import redis from '../../configs/redis';
+import redis from '../../common/redis';
 import logger from '../../common/logger';
 
 /**

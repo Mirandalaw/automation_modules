@@ -3,6 +3,7 @@ import {
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
+  JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -16,8 +17,14 @@ export class RefreshToken {
   @Column({ unique: true })
   token: string;
 
-  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @ManyToOne(() => User, (user) => user.refreshTokens, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'userId' })
   user: User;
+
+  @Column()
+  userId: string;
 
   @Column()
   userAgent: string;
@@ -48,5 +55,4 @@ export class RefreshToken {
 
   @Column({ nullable: true })
   version?: string;
-
 }

@@ -17,10 +17,10 @@ export class UserProfileController {
    * @route PATCH /users/me/profile
    */
   async updateMyProfile(req: Request, res: Response) {
-    const userId = Number(req.user!.id); // 인증된 유저 ID
+    const userUuid = req.user!.uuid; // UUID 기반 사용자 식별
     const dto: UpdateProfileDto = req.body;
 
-    const updated = await this.profileService.updateProfile(userId, dto);
+    const updated = await this.profileService.updateProfile(userUuid, dto);
     return resHandler(res, HttpStatus.OK, '프로필 수정 완료', updated);
   }
 }

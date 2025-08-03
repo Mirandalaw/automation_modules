@@ -1,5 +1,5 @@
 import { RefreshTokenPayload } from '../../types/jwt';
-import redis from '../../configs/redis';
+import redis from '../../common/redis';
 import logger from '../../common/logger';
 import { IRefreshTokenStore } from '../interfaces/IRefreshTokenStore';
 

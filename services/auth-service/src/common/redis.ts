@@ -1,5 +1,5 @@
 import Redis from 'ioredis';
-import logger from '../common/logger';
+import logger from './logger';
 import { RefreshTokenPayload } from '../types/jwt';
 
 const redis = new Redis({

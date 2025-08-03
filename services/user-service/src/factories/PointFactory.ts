@@ -9,14 +9,14 @@ import { PointType } from '../repositories/interfaces/IPointRepository';
 export class PointFactory {
   /**
    * 포인트 객체 생성
-   * @param userId 사용자 ID
+   * @param userUuid 사용자 UUID
    * @param type 포인트 타입 (EARN | USE)
    * @param amount 포인트 금액
    * @param description 설명 (선택)
    */
-  static create(userId: number, type: PointType, amount: number, description?: string): Point {
+  static create(userUuid: string, type: PointType, amount: number, description?: string): Point {
     const point = new Point();
-    point.user = { id: userId } as any; // TypeORM 외래키 참조용
+    point.user = { uuid: userUuid } as any;
     point.type = type;
     point.amount = amount;
     point.description = description ?? null;

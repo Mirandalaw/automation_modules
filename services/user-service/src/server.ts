@@ -1,17 +1,16 @@
 import app from './index';
 import logger from './common/logger';
-import { AppDataSource } from './configs/data-source';
+import {initializeLoaders} from './loaders';
 
 const PORT = process.env.SERVICE_PORT || 4001;
 
-AppDataSource.initialize()
+initializeLoaders()
   .then(() => {
-    logger.info('Database connected');
-
     app.listen(PORT, () => {
-      logger.info(`User-service running on port ${PORT}`);
+      logger.info(`[User-Service] 실행 중 - 포트: ${PORT}`);
     });
   })
   .catch((error) => {
-    logger.error('Database connection failed:', error);
+    logger.error('[User-Service] 시작 중 오류 발생:', error);
+    process.exit(1);
   });

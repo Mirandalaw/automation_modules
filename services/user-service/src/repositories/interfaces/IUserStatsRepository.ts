@@ -5,4 +5,8 @@ import { UserStats } from '../../entities/UserStats';
  */
 export interface IUserStatsRepository {
   findByUserId(userId: number): Promise<UserStats | null>;
+
+  findByUserUUID(uuid: string): Promise<UserStats | null>;
+
+  save(stats: UserStats): Promise<UserStats>;
 }

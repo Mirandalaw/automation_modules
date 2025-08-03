@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { PointService } from '../services/point.service';
+import { PointService } from '../services/PointService';
 
 /**
  * UserPointController
@@ -19,8 +19,8 @@ export class UserPointController {
    * @returns { point: number }
    */
   async getMyPoints(req: Request, res: Response) {
-    const userId = req.user!.id;
-    const point = await this.pointService.getAvailablePoint(userId as number);
+    const userUuid = req.user!.uuid;
+    const point = await this.pointService.getAvailablePoint(userUuid);
     return res.status(200).json({ point });
   }
 
@@ -34,9 +34,9 @@ export class UserPointController {
    * @returns { message: string }
    */
   async depositPoints(req: Request, res: Response) {
-    const userId = req.user!.id;
+    const userUuid = req.user!.uuid;
     const { amount, description } = req.body;
-    await this.pointService.deposit(userId as number, amount, description);
+    await this.pointService.deposit(userUuid, amount, description);
     return res.status(201).json({ message: '충전 완료' });
   }
 
@@ -51,9 +51,9 @@ export class UserPointController {
    * @returns { message: string }
    */
   async withdrawPoints(req: Request, res: Response) {
-    const userId = req.user!.id;
+    const userUuid = req.user!.uuid;
     const { amount, description } = req.body;
-    await this.pointService.withdraw(userId as number, amount, description);
+    await this.pointService.withdraw(userUuid, amount, description);
     return res.status(201).json({ message: '출금 완료' });
   }
 }

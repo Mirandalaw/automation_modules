@@ -1,8 +1,8 @@
 import { SessionRepository } from '../../repositories/implementations/SessionRepository';
-import redis from '../../configs/redis';
+import redis from '../../common/redis';
 import { Session } from '../../entities/Session';
 
-jest.mock('../../configs/redis');
+jest.mock('../../common/redis');
 
 describe('SessionRepository', () => {
   const mockSession: Session = {

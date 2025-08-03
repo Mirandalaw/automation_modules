@@ -89,7 +89,7 @@ export class LoginUserUsecase {
         },
       };
     } catch (error) {
-      logger.error(`[LoginUserUseacase] 로그인 처리 실패: ${(error as Error).message}`);
+      logger.error(`[LoginUserUsecase] 로그인 처리 실패: ${(error as Error).message}`);
       throw error;
     }
   }

@@ -1,30 +1,17 @@
 services:
-#  postgres-auth-db:
-#    image: postgres:15
-#    container_name: postgres-auth-db
-#    restart: unless-stopped
-#    env_file:
-#      - ./services/auth-service/.env
-#    ports:
-#      - "${AUTH_DB_PORT}:5432"
-#    volumes:
-#      - postgres_auth_data:/var/lib/postgresql/data
-#    networks:
-#      - msa-network
-#
-#  postgres-user-db:
-#    image: postgres:15
-#    container_name: postgres-user-db
-#    restart: unless-stopped
-#    env_file:
-#      - ./services/user-service/.env
-#    ports:
-#      - "${USER_DB_PORT}:5432"
-#    volumes:
-#      - postgres_user_data:/var/lib/postgresql/data
-#    networks:
-#      - msa-network
-
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "${RABBITMQ_PORT}:${RABBITMQ_PORT}"
+      - "${RABBITMQ_MANAGEMENT_PORT}:${RABBITMQ_MANAGEMENT_PORT}"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - msa-network
   redis:
     image: redis:7
     container_name: redis
@@ -43,7 +30,10 @@ services:
       - .env
       - ./services/auth-service/.env
     depends_on:
-      - redis
+      redis:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
     volumes:
       - /etc/localtime:/etc/localtime:ro
     networks:
@@ -57,7 +47,11 @@ services:
     env_file:
       - .env
       - ./services/user-service/.env
-    depends_on: []
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
     networks:
       - msa-network
 
@@ -77,9 +71,6 @@ services:
     networks:
       - msa-network
 
-volumes:
-  postgres_auth_data:
-  postgres_user_data:
 
 networks:
   msa-network:

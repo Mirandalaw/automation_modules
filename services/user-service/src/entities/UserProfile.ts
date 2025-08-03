@@ -15,8 +15,11 @@ export class UserProfile {
   id: number;
 
   @OneToOne(() => User, (user) => user.profile, { onDelete: 'CASCADE' })
-  @JoinColumn()
+  @JoinColumn({ name: 'userUuid', referencedColumnName: 'uuid' }) // uuid 컬럼으로 참조
   user: User;
+
+  @Column()
+  userUuid: string;
 
   @Column({ length: 30, unique: true })
   nickname: string;

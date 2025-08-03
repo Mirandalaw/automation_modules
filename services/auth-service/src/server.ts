@@ -1,20 +1,30 @@
 import app from './index';
+import logger from './common/logger';
+import { initializeLoaders } from './loaders';
 // import { initializeSchedulers } from './schedulers';
 
-// 전역 에러 핸들러 등록
-process.on('unhandledRejection', (reason,promise) =>{
-  console.error('[Unhandled Rejection]', reason);
-  // Sentry 전송, Slack 알림 등 추가 기능 예정
+process.on('unhandledRejection', (reason) => {
+  logger.error('[Unhandled Rejection]', reason);
+  // TODO: Sentry.captureException(reason);
+  // TODO: Slack alert
 });
 
-process.on('uncaughtException',(error) =>{
-  console.error('[Uncaught Exception]',error);
-  // 심각한 경우 종료 후 PM2 or Docker 재시작 유도
-  // process.exit(1);
+process.on('uncaughtException', (error) => {
+  logger.error('[Uncaught Exception]', error);
+  // TODO: Sentry.captureException(error);
+  // process.exit(1); // 심각한 경우 종료
 });
 
-const port = Number(process.env.SERVICE_PORT) || 3000;
-app.listen(port, '0.0.0.0',() => {
-  console.log(`Auth service running at http://localhost:${port}`);
-  // initializeSchedulers();
-});
+const PORT = Number(process.env.SERVICE_PORT) || 3000;
+
+initializeLoaders()
+  .then(() => {
+    app.listen(PORT, '0.0.0.0', () => {
+      logger.info(`[User-Service] 실행 중 - http://localhost:${PORT}`);
+      // initializeSchedulers(); // 필요 시 사용
+    });
+  })
+  .catch((error) => {
+    logger.error('[User-Service] 초기화 실패', error);
+    process.exit(1);
+  });

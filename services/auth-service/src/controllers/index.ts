@@ -44,7 +44,7 @@ const tokenService = new TokenService(jwtTokenIssuer, refreshTokenRedisRepositor
 const mailProvider = new SendGridProvider();
 
 // === Usecase 인스턴스 ===
-const registerUserUsecase = new RegisterUserUsecase(userRepository, sessionRepository, refreshTokenDbRepository, tokenService);
+const registerUserUsecase = new RegisterUserUsecase(userRepository);
 const loginUserUsecase = new LoginUserUsecase(userRepository, sessionRepository, refreshTokenDbRepository, tokenService);
 const reissueTokenUsecase = new ReissueTokenUsecase(userRepository, sessionRepository, refreshTokenDbRepository, tokenService, jwtProvider);
 const logoutUserUsecase = new LogoutUserUsecase(sessionRepository, refreshTokenRedisRepository, refreshTokenDbRepository);

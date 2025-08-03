@@ -1,8 +1,8 @@
 import { RedisRefreshTokenRepository } from '../../repositories/implementations/RedisRefreshTokenRepository';
-import redis from '../../configs/redis';
+import redis from '../../common/redis';
 import { RefreshTokenPayload } from '../../types/jwt';
 
-jest.mock('../../configs/redis');
+jest.mock('../../common/redis');
 
 describe('RedisRefreshTokenRepository', () => {
   const repo = new RedisRefreshTokenRepository();

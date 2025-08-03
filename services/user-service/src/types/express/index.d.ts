@@ -3,7 +3,8 @@ import { Request } from 'express';
 declare module 'express-serve-static-core' {
   interface Request {
     user?: {
-      id: number | string;
+      uuid: string;
+      role?: string;
       [key: string]: any;
     };
   }

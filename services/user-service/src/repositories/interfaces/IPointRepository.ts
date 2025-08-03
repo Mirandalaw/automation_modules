@@ -7,9 +7,10 @@ export type PointType = 'EARN' | 'USE';
 
 /**
  * 포인트 저장을 위한 입력 구조
+ * - 내부 id가 아닌 외부 uuid 기준으로 전환
  */
 export interface PointSaveInput {
-  userId: number;
+  userUuid: string; // 변경됨
   type: PointType;
   amount: number;
   description?: string;
@@ -23,10 +24,10 @@ export interface PointSaveInput {
 export interface IPointRepository {
   /**
    * 사용자 포인트 총합 조회
-   * @param userId 사용자 ID
+   * @param userUuid 사용자 UUID
    * @param type 'EARN' 또는 'USE'
    */
-  sumPoints(userId: number, type: PointType): Promise<number>;
+  sumPoints(userUuid: string, type: PointType): Promise<number>;
 
   /**
    * 포인트 적립/사용 내역 저장

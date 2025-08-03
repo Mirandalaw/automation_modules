@@ -15,6 +15,11 @@
  *           type: string
  *           description: 사용자 이름
  *           example: 홍길동
+ *         nickname:
+ *           type: string
+ *           description: 유저 닉네임 (선택 입력, 로그인 후 마이페이지에서 설정 가능)
+ *           example: honggildong99
+ *           nullable: true
  *         email:
  *           type: string
  *           format: email
@@ -37,11 +42,14 @@
  *           example: true
  */
 
-import { IsEmail, IsNotEmpty, Length, Matches, IsBoolean, Equals } from 'class-validator';
+import { IsEmail, IsNotEmpty, Length, Matches, IsBoolean, Equals, IsOptional } from 'class-validator';
 
 export class RegisterUserDto {
   @IsNotEmpty({ message: '이름은 필수입니다.' })
   name: string;
+
+  @IsOptional()
+  nickname?: string;
 
   @IsEmail({}, { message: '이메일 형식이 아닙니다.' })
   email: string;

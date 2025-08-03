@@ -13,7 +13,7 @@ export class JoinRoomUsecase {
     const alreadyJoined = await this.memberRepository.exists(roomId, userId);
     if (alreadyJoined) return;
 
-    const member = new ChatRoomMember(0, roomId, userId, new Date());
+    const member = new ChatRoomMember( roomId, userId, new Date());
      await this.memberRepository.save(member);
   }
 }

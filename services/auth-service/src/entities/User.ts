@@ -16,13 +16,25 @@ import { Role } from './Role';
 
 @Entity()
 export class User {
-  /** 사용자 UUID */
-  @PrimaryGeneratedColumn('uuid')
+  /** 내부 식별 ID (AutoIncrement) */
+  @PrimaryGeneratedColumn({ type: 'bigint' })
+  id: number;
+
+  /** 사용자 UUID (외부 식별자) */
+  @Column({
+    type: 'uuid',
+    default: () => 'uuid_generate_v4()',
+    unique: true,
+  })
   uuid: string;
 
   /** 사용자 이름 */
   @Column()
   name: string;
+
+  /** 사용자 닉네임 */
+  @Column({ unique: true })
+  nickname: string;
 
   /** 사용자 이메일 (유니크) */
   @Column({ unique: true })

@@ -8,22 +8,23 @@ import logger from '../../common/logger';
  * - 사용자 프로필에 대한 데이터 접근 구현체
  */
 export class UserProfileRepository implements IUserProfileRepository {
-  constructor(private readonly ormRepository: Repository<UserProfile>) {}
+  constructor(private readonly ormRepository: Repository<UserProfile>) {
+  }
 
   /**
    * 사용자 ID로 프로필 조회
    * - 유저가 존재해야 프로필이 조회됨
    */
-  async findByUserId(userId: number): Promise<UserProfile | null> {
+  async findByUserUuid(userUuid: string): Promise<UserProfile | null> {
     try {
       const profile = await this.ormRepository.findOne({
-        where: { user: { id: userId } },
-        relations: ['user'],
+        where: { user: { uuid: userUuid } },
+        relations: ['user']
       });
-      logger.debug(`[UserProfileRepository] findByUserId: ${userId} → ${profile ? 'FOUND' : 'NOT FOUND'}`);
+      logger.debug(`[UserProfileRepository] findByUserId: ${userUuid} → ${profile ? 'FOUND' : 'NOT FOUND'}`);
       return profile;
     } catch (error: any) {
-      logger.error(`[UserProfileRepository] findByUserId 실패: ${userId}, error=${error.message}`);
+      logger.error(`[UserProfileRepository] findByUserId 실패: ${userUuid}, error=${error.message}`);
       throw error;
     }
   }
@@ -34,10 +35,10 @@ export class UserProfileRepository implements IUserProfileRepository {
   async save(profile: UserProfile): Promise<UserProfile> {
     try {
       const saved = await this.ormRepository.save(profile);
-      logger.debug(`[UserProfileRepository] save: userId=${saved.user.id}`);
+      logger.debug(`[UserProfileRepository] save: userUuid=${saved.user.uuid}`);
       return saved;
     } catch (error: any) {
-      logger.error(`[UserProfileRepository] save 실패: userId=${profile.user?.id}, error=${error.message}`);
+      logger.error(`[UserProfileRepository] save 실패: userUuid=${profile.user?.uuid}, error=${error.message}`);
       throw error;
     }
   }
