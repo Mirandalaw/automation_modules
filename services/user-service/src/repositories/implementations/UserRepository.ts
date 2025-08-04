@@ -24,7 +24,6 @@ export class UserRepository implements IUserRepository {
    * - Auth-Service에서 넘어온 데이터 기반으로 user-service에 사용자 등록
    */
   async createUser(data: {
-    id: number;
     uuid: string;
     email: string;
     nickname: string;

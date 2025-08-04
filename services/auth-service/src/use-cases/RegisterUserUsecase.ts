@@ -39,7 +39,7 @@ export class RegisterUserUsecase {
 
       // user.created 이벤트 발행
       await publishUserCreated({
-        id: newUser.id,
+        uuid: newUser.uuid,
         email: newUser.email,
         nickname: newUser.nickname,
       });

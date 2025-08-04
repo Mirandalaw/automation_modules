@@ -22,7 +22,7 @@ export const injectUser = (req: Request, res: Response, next: NextFunction) => {
         'USER';
 
   req.user = {
-    id: userId, // UUID 문자열
+    uuid: userId,
     role,
   };
 

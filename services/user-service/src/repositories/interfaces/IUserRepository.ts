@@ -5,5 +5,5 @@ export interface IUserRepository {
 
   findByUUID(uuid: string): Promise<User | null>;
 
-  createUser(data: { id: number; uuid: string; email: string; nickname: string }): Promise<User>;
+  createUser(data: { uuid: string; email: string; nickname: string }): Promise<User>;
 }

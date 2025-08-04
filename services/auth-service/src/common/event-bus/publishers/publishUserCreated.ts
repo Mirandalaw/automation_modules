@@ -2,7 +2,7 @@ import { connection } from './publishEvent';
 import logger from '../../logger';
 
 export interface UserCreatedPayload {
-  id: number;
+  uuid: string;
   email: string;
   nickname: string;
 }

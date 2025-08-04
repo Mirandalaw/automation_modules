@@ -5,7 +5,7 @@ import {
   OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
-  PrimaryColumn,
+  PrimaryColumn, PrimaryGeneratedColumn
 } from 'typeorm';
 import { UserProfile } from './UserProfile';
 import { UserStats } from './UserStats';
@@ -16,7 +16,7 @@ import { PasswordHistory } from './PasswordHistory';
 @Entity()
 export class User {
 
-  @PrimaryColumn({ type: 'bigint' })
+  @PrimaryGeneratedColumn('increment' )
   id: number;
 
   @Column({ type: 'uuid', unique: true })
