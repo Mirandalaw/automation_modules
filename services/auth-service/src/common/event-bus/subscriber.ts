@@ -1,35 +1,57 @@
-import { getRabbitMQChannel } from './connection/rabbitmq';
+import { ConsumeMessage } from 'amqplib';
+import { initRabbitMQ, getRabbitMQChannel } from './connection/rabbitmq';
 import logger from '../logger';
 
 /**
- * 이벤트 구독 및 핸들러 실행
- * @param exchange 익스체인지 이름
- * @param routingKey 라우팅 키
- * @param queueName 큐 이름
- * @param handler 메시지 처리 콜백
+ * RabbitMQ 이벤트 구독 유틸
+ * @param exchangeName Exchange 이름 (예: 'user')
+ * @param routingKey Routing key (예: 'user.created')
+ * @param queueName Queue 이름 (예: 'user.created.queue')
+ * @param handler 메시지 처리 로직
  */
-export const subscribeToEvent = async (
-  exchange: string,
+export const subscribeToEvent = async <T>(
+  exchangeName: string,
   routingKey: string,
   queueName: string,
-  handler: (payload: any) => Promise<void>
-) => {
-  const ch = getRabbitMQChannel();
-  await ch.assertExchange(exchange, 'topic', { durable: true });
-  await ch.assertQueue(queueName, { durable: true });
-  await ch.bindQueue(queueName, exchange, routingKey);
+  handler: (payload: T) => Promise<void>
+): Promise<void> => {
+  try {
+    await initRabbitMQ();
+    const channel = await getRabbitMQChannel();
 
-  await ch.consume(queueName, async (msg) => {
-    if (msg) {
-      const payload = JSON.parse(msg.content.toString());
-      logger.debug(`[Event-Subscribe] 수신 - ${exchange}:${routingKey} → ${JSON.stringify(payload)}`);
+    // 1. Exchange 선언
+    await channel.assertExchange(exchangeName, 'topic', { durable: true });
+
+    // 2. Queue 선언
+    await channel.assertQueue(queueName, { durable: true });
+
+    // 3. 바인딩
+    await channel.bindQueue(queueName, exchangeName, routingKey);
+
+    // 4. 메시지 consume
+    await channel.consume(queueName, async (msg: ConsumeMessage | null) => {
+      if (!msg) return;
 
       try {
+        const payload = JSON.parse(msg.content.toString()) as T;
         await handler(payload);
-      } catch (e) {
-        logger.error('[RabbitMQ] 핸들러 처리 중 오류 발생:', e);
+        channel.ack(msg);
+      } catch (err) {
+        logger.error('[Subscriber] 메시지 처리 실패', {
+          error: (err as Error).message,
+          stack: (err as Error).stack,
+          content: msg.content.toString(),
+        });
+        channel.nack(msg, false, false); // requeue = false
       }
-      ch.ack(msg);
-    }
-  });
+    });
+
+    logger.info(`[Subscriber] 구독 시작: [${exchangeName}] ${routingKey} → ${queueName}`);
+  } catch (err) {
+    logger.error('[Subscriber] 이벤트 구독 실패', {
+      error: (err as Error).message,
+      stack: (err as Error).stack,
+    });
+    throw err;
+  }
 };
