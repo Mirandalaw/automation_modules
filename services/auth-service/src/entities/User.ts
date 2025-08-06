@@ -32,10 +32,6 @@ export class User {
   @Column()
   name: string;
 
-  /** 사용자 닉네임 */
-  @Column({ unique: true })
-  nickname: string;
-
   /** 사용자 이메일 (유니크) */
   @Column({ unique: true })
   email: string;

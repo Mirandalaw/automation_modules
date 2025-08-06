@@ -9,7 +9,19 @@ import { HttpStatus } from '../constants/httpStatus';
  * - 사용자 프로필 수정 요청 처리
  */
 export class UserProfileController {
-  constructor(private readonly profileService: UserProfileService) {}
+  constructor(private readonly profileService: UserProfileService) {
+  }
+
+  /**
+   * GET /users/me/profile
+   * 내 프로필 조회
+   */
+  getMyProfile = async (req: Request, res: Response) => {
+    const userUuid = req.user!.uuid;
+    const profile = await this.profileService.getMyProfile(userUuid);
+    return resHandler(res, HttpStatus.OK, '프로필 조회 완료',profile);
+  };
+
 
   /**
    * PATCH /users/me/profile

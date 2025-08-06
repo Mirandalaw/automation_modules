@@ -25,9 +25,6 @@ export class User {
   @Column({ unique: true })
   email: string;
 
-  @Column()
-  nickname: string;
-
   @Column({ nullable: true })
   password?: string;
 

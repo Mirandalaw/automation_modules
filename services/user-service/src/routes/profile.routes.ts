@@ -1,9 +1,19 @@
 import { Router } from 'express';
 import { userProfileController } from '../controllers';
+import { injectUser } from '../common/middlewares/injectUser';
 // import { validateRequest } from '../common/middlewares/validateRequest';
 // import { UpdateProfileDto } from '../dtos/UpdateProfileDto';
 
 const userRouter = Router();
+
+
+/**
+ * GET /user/me/profile
+ * - 내 프로필 정보 조회
+ */
+userRouter.get(
+  '/', injectUser, userProfileController.getMyProfile.bind(userProfileController)
+);
 
 /**
  * PATCH /user/me/profile
@@ -11,8 +21,8 @@ const userRouter = Router();
  */
 userRouter.patch(
   '/',
-  // validateRequest(UpdateProfileDto), // DTO 유효성 검사 미들웨어
-  userProfileController.updateMyProfile.bind(userProfileController),
+  injectUser,
+  userProfileController.updateMyProfile.bind(userProfileController)
 );
 
 export default userRouter;
