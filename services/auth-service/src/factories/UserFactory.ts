@@ -18,7 +18,6 @@ export class UserFactory {
 
     const user = new User();
     user.name = dto.name;
-    user.nickname = dto.nickname ?? `user_${Date.now()}`; // 닉네임이 없을 경우 자동 생성
     user.email = dto.email;
     user.password = hashedPassword;
     user.phone = dto.phone ?? null;

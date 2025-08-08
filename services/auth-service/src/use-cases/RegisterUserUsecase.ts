@@ -41,7 +41,6 @@ export class RegisterUserUsecase {
       await publishUserCreated({
         uuid: newUser.uuid,
         email: newUser.email,
-        nickname: newUser.nickname,
       });
     } catch (error) {
       logger.error(`[RegisterUserUsecase] 사용자 저장 실패: ${(error as Error).message}`);

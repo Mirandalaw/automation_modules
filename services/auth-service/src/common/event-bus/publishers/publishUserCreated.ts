@@ -4,7 +4,6 @@ import logger from '../../logger';
 export interface UserCreatedPayload {
   uuid: string;
   email: string;
-  nickname: string;
 }
 
 /**
